@@ -1,9 +1,8 @@
 package com.morcinek.server.webservice.guice;
 
 import com.google.inject.servlet.ServletModule;
-import com.morcinek.server.webservice.resources.BenchResource;
-import com.morcinek.server.webservice.resources.JacksonResource;
 import com.morcinek.server.webservice.resources.SampleResource;
+import com.morcinek.server.webservice.resources.UserResource;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
@@ -37,9 +36,8 @@ public class WebserviceModule extends ServletModule {
      * bind the REST resources
      */
     private void bindRestResources() {
-        bind(BenchResource.class);
         bind(SampleResource.class);
-        bind(JacksonResource.class);
+        bind(UserResource.class);
     }
 
 }
