@@ -1,6 +1,7 @@
 package com.morcinek.server.webservice.guice;
 
 import com.google.inject.servlet.ServletModule;
+import com.morcinek.server.webservice.resources.AccountResource;
 import com.morcinek.server.webservice.resources.SampleResource;
 import com.morcinek.server.webservice.resources.UserResource;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
@@ -38,6 +39,7 @@ public class WebserviceModule extends ServletModule {
     private void bindRestResources() {
         bind(SampleResource.class);
         bind(UserResource.class);
+        bind(AccountResource.class);
     }
 
 }

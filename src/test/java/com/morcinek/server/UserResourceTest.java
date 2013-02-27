@@ -14,7 +14,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class UserResourceTest {
 	@Rule
-	public ServerRule serverRule = new ServerRule(8080,"/api");
+	public static ServerRule serverRule = new ServerRule(8080,"/api");
 
     @BeforeClass
     public static void before() {

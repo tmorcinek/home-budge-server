@@ -1,8 +1,9 @@
 package com.morcinek.server.model;
 
 import javax.persistence.*;
-import java.sql.Date;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -13,6 +14,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @Entity
+@XmlRootElement
 @NamedNativeQueries(
         @NamedNativeQuery(name = "findAccountById", query = "SELECT * FROM account WHERE account.id = ?", resultClass = User.class)
 )
@@ -24,7 +26,8 @@ public class Account {
 
     private String name;
 
-    private Date startDate;
+    @Temporal(TemporalType.DATE)
+    private Calendar startDate;
 
     @ManyToOne
     private User admin;
@@ -36,7 +39,7 @@ public class Account {
         this.name = name;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(Calendar startDate) {
         this.startDate = startDate;
     }
 
@@ -53,7 +56,7 @@ public class Account {
         return name;
     }
 
-    public Date getStartDate() {
+    public Calendar getStartDate() {
         return startDate;
     }
 

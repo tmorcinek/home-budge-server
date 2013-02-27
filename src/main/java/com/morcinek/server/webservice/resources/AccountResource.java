@@ -35,7 +35,7 @@ public class AccountResource {
     }
 
     @PUT
-    public Response createAccount(Account account) {
+    public Response createAccount(@QueryParam("userId") long userId, Account account) {
 
         throw new MethodNotImplementedException();
     }
@@ -50,7 +50,7 @@ public class AccountResource {
         throw new MethodNotImplementedException();
     }
 
-    @POST
+    @DELETE
     public Response removeUserFromAccount(@QueryParam("accountId") long accountId, @QueryParam("userId") long userId) {
 //        Query accountById = entityManager.createNativeQuery("findAccountById", Account.class);
 //        accountById.setParameter(1,"accountId");
