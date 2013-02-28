@@ -91,5 +91,4 @@ public class UserResourceTest {
                 post("/user");
     }
 
-
 }

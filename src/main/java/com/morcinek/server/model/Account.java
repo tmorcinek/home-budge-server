@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @XmlRootElement
 @NamedNativeQueries(
-        @NamedNativeQuery(name = "findAccountById", query = "SELECT * FROM account WHERE account.id = ?", resultClass = User.class)
+        @NamedNativeQuery(name = "findAccountById", query = "SELECT * FROM Account a WHERE a.id = :id", resultClass = Account.class)
 )
 public class Account {
 
