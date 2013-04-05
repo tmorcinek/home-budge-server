@@ -85,7 +85,7 @@ public class UserResource {
 //        EntityTransaction tx = entityManager.getTransaction();
 //        tx.begin();
 //        try {
-//            user = getUser(user.getEmail(),user.getPassword());
+//            user = getCreator(user.getEmail(),user.getPassword());
 //            entityManager.remove(user);
 //            tx.commit();
 //        } catch (Exception e) {

@@ -41,6 +41,14 @@ public class Account {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<User> users = new ArrayList<User>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private List<Record> records = new ArrayList<Record>();
+
+    @PreUpdate
+    public void updateStartDate(){
+        this.startDate = Calendar.getInstance();
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -52,6 +60,10 @@ public class Account {
     public void setAdmin(User admin) {
         this.admin = admin;
         admin.addAccount(this);
+    }
+
+    public void setRecords(List<Record> records) {
+        this.records = records;
     }
 
     public Long getId() {
@@ -77,5 +89,15 @@ public class Account {
 
     public User getAdmin() {
         return admin;
+    }
+
+    public List<Record> getRecords() {
+        return records;
+    }
+
+
+    public void addRecord(Record record) {
+        records.add(record);
+        record.setAccount(this);
     }
 }

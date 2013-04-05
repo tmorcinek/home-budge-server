@@ -39,7 +39,7 @@ public class AccountResourceTest {
             user.setPassword("tomek");
             userResource.createUser(user);
             Account account = new Account();
-            account.setName("Limanowskiego2");
+            account.setName("Limanowskiego211");
             accountResource.createAccount(1, account);
         } catch (Exception e) {
         }
@@ -63,9 +63,9 @@ public class AccountResourceTest {
                 contentType(ContentType.JSON).
                 body(account).
                 param("userId", 1).
-                expect().
+        expect().
                 statusCode(201).
-                when().
+        when().
                 put("/account");
     }
 
