@@ -2,12 +2,16 @@ package com.morcinek.server;
 
 import com.google.inject.Inject;
 import com.morcinek.server.model.Account;
+import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.guice.GuiceJUnitRunner;
+import com.morcinek.server.webservice.resources.AccountResource;
+import com.morcinek.server.webservice.resources.UserResource;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -25,21 +29,36 @@ public class AccountEntityManagerTest {
     @Inject
     private EntityManager entityManager;
 
+    @Inject
+    private UserResource userResource;
+
+    @Inject
+    private AccountResource accountResource;
+
+    @Before
+    public void initAccount(){
+        User user = new User();
+        user.setName("tomek");
+        user.setEmail("tomk@morcinek.com");
+        user.setPassword("tomek");
+        userResource.createUser(user);
+        Account account = new Account();
+        account.setName("Limanowskiego");
+        accountResource.createAccount(1, account);
+    }
+
     @Test
     public void getAccountUsersTest() throws Exception {
         // given
-        long accountId = 0;
+        long accountId = 2;
 
         // when
-        TypedQuery<Account> accountTypedQuery = entityManager.createNamedQuery("findAccountById", Account.class)
-                .setParameter("id", accountId);
-        List<Account> accounts = accountTypedQuery.getResultList();
-
+        List<Account> accounts = entityManager.createNamedQuery("findAccountById").setParameter("id", accountId).getResultList();
         Account account1 = entityManager.find(Account.class, accountId);
 
 
         // then
         assertThat(accounts).isNotNull().hasSize(1);
-        assertThat(account1).isNotNull().equals(accounts.get(0));
+        assertThat(account1).isNotNull().isEqualTo(accounts.get(0));
     }
 }

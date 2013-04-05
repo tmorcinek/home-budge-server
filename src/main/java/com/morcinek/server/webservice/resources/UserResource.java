@@ -8,10 +8,8 @@ import com.morcinek.server.webservice.exceptions.UserNotFoundException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
-import javax.servlet.http.HttpServletResponse;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -34,13 +32,13 @@ public class UserResource {
     @GET
     public User getUser(@QueryParam("email") String email, @QueryParam("password") String password) {
         checkBasicData(new User(email, password));
-        Query query = entityManager.createNamedQuery("findUserByEmailAndPassword");
-        query.setParameter(1, email);
-        query.setParameter(2, password);
+        TypedQuery<User> query = entityManager.createNamedQuery("findUserByEmailAndPassword", User.class);
+        query.setParameter("email", email);
+        query.setParameter("password", password);
         User user = null;
         try {
-            List resultList = query.getResultList();
-            user = (User) resultList.get(0);
+            List<User> resultList = query.getResultList();
+            user = resultList.get(0);
         } catch (IndexOutOfBoundsException e) {
             throw new UserNotFoundException();
         }
@@ -49,40 +47,67 @@ public class UserResource {
 
     @POST
     @Path("/create")
-    public Response createUser(@Context final HttpServletResponse response, @QueryParam("email") String email,
+    public Response createUser(@QueryParam("email") String email,
                                @QueryParam("password") String password, @QueryParam("name") String name) {
         User user = new User(email, password);
         user.setName(name);
-        return createUser(response, user);
+        return createUser(user);
     }
 
     @POST
-    public Response createUser(@Context final HttpServletResponse response, User user) {
+    public Response createUser(User user) {
         checkBasicData(user);
         checkName(user);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         try {
             entityManager.persist(user);
-            user = getUser(user.getEmail(), user.getPassword());
+            tx.commit();
         } catch (Exception e) {
-            tx.rollback();
+            e.printStackTrace();
             throw new UserLoginException();
         }
-        tx.commit();
         return Response.status(Response.Status.CREATED.getStatusCode()).entity(user).build();
     }
 
     @POST
     @Path("/confirm")
-    public String confirmUser(@QueryParam("email") String email, @QueryParam("token") String token) throws NoSuchMethodException {
+    public String confirmUser(@QueryParam("email") String email, @QueryParam("token") String token) {
         throw new MethodNotImplementedException();
     }
 
     @PUT
-    public User updateUser(User user) throws NoSuchMethodException {
+    public User updateUser(User user) {
         throw new MethodNotImplementedException();
     }
+
+//    public Response deleteUser(User user) {
+//        EntityTransaction tx = entityManager.getTransaction();
+//        tx.begin();
+//        try {
+//            user = getUser(user.getEmail(),user.getPassword());
+//            entityManager.remove(user);
+//            tx.commit();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new UserLoginException();
+//        }
+//        return Response.status(Response.Status.OK.getStatusCode()).build();
+//    }
+//
+//    public Response deleteUser(long userId) {
+//        EntityTransaction tx = entityManager.getTransaction();
+//        tx.begin();
+//        try {
+//            User user = entityManager.find(User.class, userId);
+//            entityManager.remove(user);
+//            tx.commit();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new UserLoginException();
+//        }
+//        return Response.status(Response.Status.OK.getStatusCode()).build();
+//    }
 
     private void checkBasicData(User user) {
         if (user.getEmail() == null || user.getPassword() == null) {

@@ -1,5 +1,9 @@
 package com.morcinek.server.model;
 
+import com.sun.istack.NotNull;
+import org.eclipse.persistence.annotations.PrimaryKey;
+import org.eclipse.persistence.internal.sessions.DirectCollectionChangeRecord;
+
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -16,23 +20,25 @@ import java.util.List;
 @Entity
 @XmlRootElement
 @NamedNativeQueries(
-        @NamedNativeQuery(name = "findAccountById", query = "SELECT * FROM Account a WHERE a.id = :id", resultClass = Account.class)
+        @NamedNativeQuery(name = "findAccountById", query = "SELECT * FROM ACCOUNT a WHERE a.id = ?id", resultClass = Account.class)
 )
+@Table(name = "ACCOUNT", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "admin"})})
 public class Account {
 
     @Id
     @GeneratedValue
     private Long id;
 
+    @Basic(optional = false)
     private String name;
 
     @Temporal(TemporalType.DATE)
     private Calendar startDate;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private User admin;
 
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<User> users = new ArrayList<User>();
 
     public void setName(String name) {

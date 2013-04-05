@@ -2,7 +2,7 @@ package com.morcinek.server;
 
 import com.google.inject.servlet.GuiceFilter;
 import com.morcinek.server.webservice.Main;
-import com.morcinek.server.webservice.guice.GuiceConfiguration;
+import com.morcinek.server.webservice.guice.GuiceConfigurationForTest;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -30,7 +30,7 @@ public class ServerRule extends ExternalResource {
         server = new Server(port);
         ServletContextHandler root = new ServletContextHandler(server, contextPath, ServletContextHandler.SESSIONS);
 
-        root.addEventListener(new GuiceConfiguration());
+        root.addEventListener(new GuiceConfigurationForTest());
         root.addFilter(GuiceFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
         root.addServlet(ServletContainer.class, "/*");
 

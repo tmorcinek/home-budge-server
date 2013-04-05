@@ -1,11 +1,17 @@
 package com.morcinek.server;
 
+import com.google.inject.Inject;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.morcinek.server.model.User;
+import com.morcinek.server.webservice.guice.GuiceJUnitRunner;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import javax.persistence.EntityManager;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
@@ -13,6 +19,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class UserResourceTest {
+
 	@Rule
 	public static ServerRule serverRule = new ServerRule(8080,"/api");
 
@@ -26,7 +33,7 @@ public class UserResourceTest {
         expect().
                 statusCode(404).
                 when().
-                get("/user?password=tomek&email=karamba@1morcinek.com");
+                get("/user?password=tomek&email=karamba@1mmorcinek.com");
     }
 
     @Test

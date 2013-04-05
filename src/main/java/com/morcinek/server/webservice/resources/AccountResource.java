@@ -4,8 +4,12 @@ import com.google.inject.Inject;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.exceptions.MethodNotImplementedException;
+import com.morcinek.server.webservice.exceptions.UserLoginException;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceUnitUtil;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,35 +32,61 @@ public class AccountResource {
 
     @GET
     public List<User> getAccountUsers(@QueryParam("accountId") long accountId) {
-//        Query accountById = entityManager.createNativeQuery("findAccountById", Account.class);
-//        accountById.setParameter(1,"accountId");
-
-        throw new MethodNotImplementedException();
+        Account account = entityManager.find(Account.class, accountId);
+        return account.getUsers();
     }
 
     @PUT
     public Response createAccount(@QueryParam("userId") long userId, Account account) {
+        validateAccount(account);
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
+        try {
+            User admin = entityManager.find(User.class, userId);
+            account.setAdmin(admin);
+            entityManager.persist(account);
+            tx.commit();
+        } catch (Exception e) {
+            throw new UserLoginException();
+        }
+        return Response.status(Response.Status.CREATED.getStatusCode()).entity(account).build();
+    }
 
-        throw new MethodNotImplementedException();
+    private void validateAccount(Account account) {
+        if (account.getName() == null || account.getName().trim().equals("")) {
+            throw new UserLoginException();
+        }
     }
 
 
     @POST
     public Response addUserToAccount(@QueryParam("accountId") long accountId, @QueryParam("userId") long userId) {
-//        Query accountById = entityManager.createNativeQuery("findAccountById", Account.class);
-//        accountById.setParameter(1,"accountId");
-
-
-        throw new MethodNotImplementedException();
+        Account account = entityManager.find(Account.class, accountId);
+        User user = entityManager.find(User.class, userId);
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
+        try {
+            account.addUser(user);
+            tx.commit();
+        } catch (Exception e) {
+            throw new UserLoginException();
+        }
+        return Response.status(Response.Status.OK.getStatusCode()).entity(account).build();
     }
 
     @DELETE
-    public Response removeUserFromAccount(@QueryParam("accountId") long accountId, @QueryParam("userId") long userId) {
-//        Query accountById = entityManager.createNativeQuery("findAccountById", Account.class);
-//        accountById.setParameter(1,"accountId");
-
-
-        throw new MethodNotImplementedException();
+    public Response removeUserFromAccount(@QueryParam("userId") long userId, @QueryParam("accountId") long accountId) {
+        Account account = entityManager.find(Account.class, accountId);
+        User user = entityManager.find(User.class, userId);
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
+        try {
+            account.getUsers().remove(user);
+            tx.commit();
+        } catch (Exception e) {
+            throw new UserLoginException();
+        }
+        return Response.status(Response.Status.OK.getStatusCode()).entity(account).build();
     }
 
 

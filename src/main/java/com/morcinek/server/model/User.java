@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Entity
 @XmlRootElement
-@NamedNativeQuery(name = "findUserByEmailAndPassword", query = "SELECT * FROM user WHERE email = ? AND password = ?", resultClass = User.class)
+@NamedQuery(name = "findUserByEmailAndPassword", query = "SELECT u FROM User u WHERE u.email = :email AND u.password = :password")
 public class User {
 
     @Id
@@ -24,11 +24,12 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Basic(fetch = FetchType.LAZY)
     private String password;
 
     private String name;
 
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.PERSIST)
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Account> accounts = new ArrayList<Account>();
 
     public User() {
@@ -77,5 +78,22 @@ public class User {
 
     public void addAccount(Account account) {
         accounts.add(account);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (id != null ? !id.equals(user.id) : user.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }
