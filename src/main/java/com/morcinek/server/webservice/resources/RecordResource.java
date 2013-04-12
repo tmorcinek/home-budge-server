@@ -9,9 +9,11 @@ import com.morcinek.server.webservice.exceptions.UserLoginException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,8 +33,11 @@ public class RecordResource {
 
     @GET
     @Path("{recordId}")
-    public Record getRecord(@PathParam("recordId") String recordId) {
-        return entityManager.find(Record.class, recordId);
+    public Record getRecord(@PathParam("recordId") long recordId) {
+        TypedQuery<Record> namedQuery = entityManager.createNamedQuery("findRecordById", Record.class);
+        namedQuery.setParameter("id", recordId);
+        Record record = namedQuery.getSingleResult();
+        return record;
     }
 
     @GET
@@ -41,10 +46,17 @@ public class RecordResource {
         return account.getRecords();
     }
 
-    @POST
+    @PUT
     public Response createRecord(@QueryParam("accountId") long accountId, Record record) {
-        Account account = entityManager.find(Account.class, record.getAccount().getId());
+        Account account = entityManager.find(Account.class, accountId);
         account.addRecord(record);
+        record.setCreator(entityManager.find(User.class, record.getCreator().getId()));
+        record.setPayer(entityManager.find(User.class, record.getPayer().getId()));
+        List<User> users = new ArrayList<User>();
+        for (User user : record.getUsers()) {
+            users.add(entityManager.find(User.class, user.getId()));
+        }
+        record.setUsers(users);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         try {
@@ -57,10 +69,8 @@ public class RecordResource {
         return Response.status(Response.Status.CREATED.getStatusCode()).entity(record).build();
     }
 
-    @PUT
+    @POST
     public Response updateRecord(Record record) {
-        Account account = entityManager.find(Account.class, record.getAccount().getId());
-        account.addRecord(record);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         try {
@@ -70,7 +80,7 @@ public class RecordResource {
             e.printStackTrace();
             throw new UserLoginException();
         }
-        return Response.status(Response.Status.CREATED.getStatusCode()).entity(record).build();
+        return Response.status(Response.Status.OK.getStatusCode()).entity(record).build();
     }
 
 }

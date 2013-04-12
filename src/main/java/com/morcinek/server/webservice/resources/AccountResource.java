@@ -33,6 +33,7 @@ public class AccountResource {
     @GET
     public List<User> getAccountUsers(@QueryParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
+        entityManager.detach(account);
         return account.getUsers();
     }
 
@@ -45,8 +46,10 @@ public class AccountResource {
             User admin = entityManager.find(User.class, userId);
             account.setAdmin(admin);
             entityManager.persist(account);
+            entityManager.flush();
             tx.commit();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new UserLoginException();
         }
         return Response.status(Response.Status.CREATED.getStatusCode()).entity(account).build();
@@ -67,6 +70,8 @@ public class AccountResource {
         tx.begin();
         try {
             account.addUser(user);
+            entityManager.merge(account);
+            entityManager.flush();
             tx.commit();
         } catch (Exception e) {
             throw new UserLoginException();
@@ -82,6 +87,7 @@ public class AccountResource {
         tx.begin();
         try {
             account.getUsers().remove(user);
+            entityManager.merge(account);
             tx.commit();
         } catch (Exception e) {
             throw new UserLoginException();

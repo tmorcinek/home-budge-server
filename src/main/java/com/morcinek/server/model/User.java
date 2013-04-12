@@ -1,7 +1,12 @@
 package com.morcinek.server.model;
 
+import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
+
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +19,7 @@ import java.util.List;
  */
 @Entity
 @XmlRootElement
+@XmlAccessorType(value = XmlAccessType.FIELD)
 @NamedQuery(name = "findUserByEmailAndPassword", query = "SELECT u FROM User u WHERE u.email = :email AND u.password = :password")
 public class User {
 
@@ -27,9 +33,11 @@ public class User {
     @Basic(fetch = FetchType.LAZY)
     private String password;
 
+    @Column(nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    @XmlTransient
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Account> accounts = new ArrayList<Account>();
 
     public User() {

@@ -9,8 +9,6 @@
 
             <property name="javax.persistence.jdbc.driver" value="org.sqlite.JDBC" />
             <property name="javax.persistence.jdbc.url"	value="jdbc:sqlite:sample.db" />
-            <!--<property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />-->
-			<!--<property name="javax.persistence.jdbc.url" value="jdbc:derby:simpleDb;create=true" />-->
 			<property name="javax.persistence.jdbc.user" value="sa" />
 			<property name="javax.persistence.jdbc.password" value="" />
 

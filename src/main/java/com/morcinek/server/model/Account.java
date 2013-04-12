@@ -1,11 +1,12 @@
 package com.morcinek.server.model;
 
-import com.sun.istack.NotNull;
-import org.eclipse.persistence.annotations.PrimaryKey;
-import org.eclipse.persistence.internal.sessions.DirectCollectionChangeRecord;
+import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
  */
 @Entity
 @XmlRootElement
+@XmlAccessorType(value = XmlAccessType.FIELD)
 @NamedNativeQueries(
         @NamedNativeQuery(name = "findAccountById", query = "SELECT * FROM ACCOUNT a WHERE a.id = ?id", resultClass = Account.class)
 )
@@ -38,15 +40,20 @@ public class Account {
     @ManyToOne(optional = false)
     private User admin;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<User> users = new ArrayList<User>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @XmlTransient
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Record> records = new ArrayList<Record>();
 
     @PreUpdate
-    public void updateStartDate(){
+    public void updateStartDate() {
         this.startDate = Calendar.getInstance();
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setName(String name) {

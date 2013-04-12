@@ -1,72 +1,65 @@
 package com.morcinek.server;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceFilter;
-import com.morcinek.server.webservice.Main;
-import com.morcinek.server.webservice.guice.GuiceConfigurationForTest;
+import com.google.inject.servlet.GuiceServletContextListener;
+import com.morcinek.server.webservice.guice.CoreTestModule;
+import com.morcinek.server.webservice.guice.WebserviceModule;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.rules.ExternalResource;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
 import javax.servlet.DispatcherType;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.EnumSet;
 
 public class ServerRule extends ExternalResource {
 
-	private int port;
+    private int port;
 
-	private final String contextPath;
+    private final String contextPath;
+    private EntityManager entityManager;
 
-	private Server server;
+    private Server server;
 
-	public ServerRule(int port, String contextPath) {
-		this.port = port;
-		this.contextPath = contextPath;
-	}
+    public ServerRule(int port, String contextPath) {
+        this.port = port;
+        this.contextPath = contextPath;
+    }
 
-	public void start() throws Exception {
+    @Override
+    protected void before() throws Throwable {
         server = new Server(port);
-        ServletContextHandler root = new ServletContextHandler(server, contextPath, ServletContextHandler.SESSIONS);
 
-        root.addEventListener(new GuiceConfigurationForTest());
+        ServletContextHandler root = new ServletContextHandler(server, contextPath, ServletContextHandler.SESSIONS);
+        root.addEventListener(new GuiceServletContextListener() {
+            @Override
+            protected Injector getInjector() {
+                entityManager = Persistence.createEntityManagerFactory("persistenceUnitTest").createEntityManager();
+                return Guice.createInjector(new CoreTestModule(entityManager), new WebserviceModule());
+            }
+        });
         root.addFilter(GuiceFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
         root.addServlet(ServletContainer.class, "/*");
 
         server.start();
-	}
+    }
 
-	public static void main(String[] args) throws Exception {
-		ServerRule webStart = new ServerRule(Main.PORT, Main.CONTEXT_PATH);
+    @Override
+    protected void after() {
+        try {
+            //server.join();
+            server.stop();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		webStart.start();
 
-		System.err.println("Running. Hit <Enter> to Stop");
-
-		new BufferedReader(new InputStreamReader(System.in)).readLine();
-
-		webStart.stop();
-
-	}
-
-	public void stop() throws Exception {
-		//server.join();
-		server.stop();
-	}
-
-	@Override
-	protected void before() throws Throwable {
-		start();
-	}
-
-	@Override
-	protected void after() {
-		try {
-			stop();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
 }

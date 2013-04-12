@@ -45,7 +45,7 @@ public class UserResource {
         return user;
     }
 
-    @POST
+    @PUT
     @Path("/create")
     public Response createUser(@QueryParam("email") String email,
                                @QueryParam("password") String password, @QueryParam("name") String name) {
@@ -54,7 +54,7 @@ public class UserResource {
         return createUser(user);
     }
 
-    @POST
+    @PUT
     public Response createUser(User user) {
         checkBasicData(user);
         checkName(user);
@@ -62,21 +62,21 @@ public class UserResource {
         tx.begin();
         try {
             entityManager.persist(user);
+            entityManager.flush();
             tx.commit();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new UserLoginException();
         }
         return Response.status(Response.Status.CREATED.getStatusCode()).entity(user).build();
     }
 
-    @POST
+    @PUT
     @Path("/confirm")
     public String confirmUser(@QueryParam("email") String email, @QueryParam("token") String token) {
         throw new MethodNotImplementedException();
     }
 
-    @PUT
+    @POST
     public User updateUser(User user) {
         throw new MethodNotImplementedException();
     }

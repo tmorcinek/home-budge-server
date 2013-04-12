@@ -32,4 +32,6 @@ public class GuiceJUnitRunner extends BlockJUnit4ClassRunner {
         injector.injectMembers(object);
         return object;
     }
+
+
 }

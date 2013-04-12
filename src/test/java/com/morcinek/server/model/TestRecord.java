@@ -16,53 +16,33 @@ import java.util.List;
  * Time: 7:15 PM
  * To change this template use File | Settings | File Templates.
  */
-@Entity
 @XmlRootElement
-@XmlAccessorType(value = XmlAccessType.FIELD)
-@NamedQuery(name = "findRecordById", query = "SELECT r FROM Record r WHERE r.id = :id")
-public class Record {
+public class TestRecord {
 
-    @Id
-    @GeneratedValue
     private Long id;
 
-    // TODO please fix it later not to be opitonal
-    // this is optional only because there is no token system yet.
-    @ManyToOne(optional = true)
-    private User creator;
+    private TestUser creator;
 
-    @ManyToOne(optional = false)
-    private User payer;
+    private TestUser payer;
 
-    @Temporal(TemporalType.DATE)
     private Calendar createdDate;
 
-    @Basic(optional = false)
     private String title;
 
     private String description;
 
-    @Basic(optional = false)
     private Double amount;
 
     @XmlTransient
-    @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.LAZY)
-    private Account account;
+    private TestAccount account;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    private List<User> users = new ArrayList<User>();
+    private List<TestUser> users = new ArrayList<TestUser>();
 
-    @PreUpdate
-    @PrePersist
-    public void updateStartDate() {
-        this.createdDate = Calendar.getInstance();
-    }
-
-    public User getCreator() {
+    public TestUser getCreator() {
         return creator;
     }
 
-    public void setCreator(User creator) {
+    public void setCreator(TestUser creator) {
         this.creator = creator;
     }
 
@@ -70,11 +50,11 @@ public class Record {
         return createdDate;
     }
 
-    public User getPayer() {
+    public TestUser getPayer() {
         return payer;
     }
 
-    public void setPayer(User payer) {
+    public void setPayer(TestUser payer) {
         this.payer = payer;
     }
 
@@ -94,7 +74,7 @@ public class Record {
         return description;
     }
 
-    public Account getAccount() {
+    public TestAccount getAccount() {
         return account;
     }
 
@@ -110,15 +90,15 @@ public class Record {
         this.amount = amount;
     }
 
-    public List<User> getUsers() {
+    public List<TestUser> getUsers() {
         return users;
     }
 
-    public void setUsers(List<User> users) {
+    public void setUsers(List<TestUser> users) {
         this.users = users;
     }
 
-    public void setAccount(Account account) {
+    public void setAccount(TestAccount account) {
         this.account = account;
     }
 
