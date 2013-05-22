@@ -1,10 +1,6 @@
 package com.morcinek.server.model;
 
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -17,6 +13,7 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @XmlRootElement
+@XmlAccessorType(value = XmlAccessType.FIELD)
 public class TestRecord {
 
     private Long id;
@@ -24,8 +21,6 @@ public class TestRecord {
     private TestUser creator;
 
     private TestUser payer;
-
-    private Calendar createdDate;
 
     private String title;
 
@@ -46,10 +41,6 @@ public class TestRecord {
         this.creator = creator;
     }
 
-    public Calendar getCreatedDate() {
-        return createdDate;
-    }
-
     public TestUser getPayer() {
         return payer;
     }
@@ -58,28 +49,12 @@ public class TestRecord {
         this.payer = payer;
     }
 
-    public void setCreatedDate(Calendar createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public TestAccount getAccount() {
         return account;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Double getAmount() {
@@ -102,4 +77,23 @@ public class TestRecord {
         this.account = account;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

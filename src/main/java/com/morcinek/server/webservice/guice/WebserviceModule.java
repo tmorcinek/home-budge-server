@@ -7,6 +7,8 @@ import com.morcinek.server.webservice.resources.SampleResource;
 import com.morcinek.server.webservice.resources.UserResource;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -26,8 +28,8 @@ public class WebserviceModule extends ServletModule {
         bindRestResources();
 
         /* bind jackson converters for JAXB/JSON serialization */
-        bind(MessageBodyReader.class).to(JacksonJsonProvider.class);
-        bind(MessageBodyWriter.class).to(JacksonJsonProvider.class);
+        bind(MessageBodyReader.class).to(JacksonJsonProvider.class).asEagerSingleton();
+        bind(MessageBodyWriter.class).to(JacksonJsonProvider.class).asEagerSingleton();
 
         Map<String, String> initParams = new HashMap<String, String>();
         initParams.put("com.sun.jersey.config.feature.Trace", "true");

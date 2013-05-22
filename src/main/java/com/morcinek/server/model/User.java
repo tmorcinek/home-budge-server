@@ -1,7 +1,5 @@
 package com.morcinek.server.model;
 
-import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
-
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

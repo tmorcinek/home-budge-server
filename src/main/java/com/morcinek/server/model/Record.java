@@ -5,8 +5,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,8 +34,11 @@ public class Record {
     @ManyToOne(optional = false)
     private User payer;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Calendar createdDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Calendar updatedDate;
 
     @Basic(optional = false)
     private String title;
@@ -50,16 +53,25 @@ public class Record {
     private Account account;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
-    private List<User> users = new ArrayList<User>();
+    private List<User> users;
 
     @PreUpdate
+    public void updateDate() {
+        this.updatedDate = Calendar.getInstance();
+    }
+
     @PrePersist
-    public void updateStartDate() {
+    public void createDate() {
         this.createdDate = Calendar.getInstance();
+        this.updatedDate = this.createdDate;
     }
 
     public User getCreator() {
         return creator;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setCreator(User creator) {
@@ -70,6 +82,10 @@ public class Record {
         return createdDate;
     }
 
+    public Calendar getUpdatedDate() {
+        return updatedDate;
+    }
+
     public User getPayer() {
         return payer;
     }
@@ -78,8 +94,8 @@ public class Record {
         this.payer = payer;
     }
 
-    public void setCreatedDate(Calendar createdDate) {
-        this.createdDate = createdDate;
+    public Long getId() {
+        return id;
     }
 
     public String getTitle() {

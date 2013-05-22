@@ -1,31 +1,23 @@
 package com.morcinek.server;
 
-import com.google.inject.Inject;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
-import com.morcinek.server.model.Account;
-import com.morcinek.server.model.Record;
-import com.morcinek.server.model.User;
-import com.morcinek.server.webservice.guice.GuiceJUnitRunner;
-import com.morcinek.server.webservice.resources.AccountResource;
-import com.morcinek.server.webservice.resources.RecordResource;
-import com.morcinek.server.webservice.resources.UserResource;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import com.morcinek.server.model.*;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import java.util.ArrayList;
 
-import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class RecordResourceTest {
 
     @ClassRule
     public static ServerRule serverRule = new ServerRule(8080, "/api");
+    private static Long recordId;
 
     @BeforeClass
     public static void before() {
@@ -58,6 +50,7 @@ public class RecordResourceTest {
         entityManager.persist(record);
         entityManager.flush();
         tx.commit();
+        recordId = record.getId();
     }
 
     @Test
@@ -66,7 +59,7 @@ public class RecordResourceTest {
                 expect().
                 statusCode(200).
                 when().
-                get("/record/3");
+                get("/record/" + recordId);
 
     }
 
@@ -82,17 +75,17 @@ public class RecordResourceTest {
 
     @Test
     public void createRecordTest() {
-        Record record = new Record();
+        TestRecord record = new TestRecord();
         record.setAmount(213.22);
         record.setTitle("zakupy");
-        Account account = new Account();
+        TestAccount account = new TestAccount();
         account.setId(2L);
-        User e = new User();
+        TestUser e = new TestUser();
         e.setId(1L);
 
         record.setCreator(e);
         record.setPayer(e);
-        ArrayList<User> users = new ArrayList<User>();
+        ArrayList<TestUser> users = new ArrayList<TestUser>();
         users.add(e);
         record.setUsers(users);
         record.setAccount(account);
@@ -108,17 +101,11 @@ public class RecordResourceTest {
 
     @Test
     public void updateRecordTest() {
-        Record record = new Record();
-        Account account = new Account();
-        account.setId(2L);
-        User e = new User();
-        e.setId(1L);
-        record.setAccount(account);
-        record.setCreator(e);
-        record.setPayer(e);
-        ArrayList<User> users = new ArrayList<User>();
-        users.add(e);
-        record.setUsers(users);
+        TestRecord record = new TestRecord();
+        record.setId(recordId);
+        record.setTitle("new title");
+        record.setDescription("description");
+        record.setUsers(null);
         given().
                 contentType(ContentType.JSON).
                 body(record).

@@ -1,21 +1,16 @@
 package com.morcinek.server;
 
-import com.google.inject.Inject;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.TestAccount;
 import com.morcinek.server.model.User;
-import com.morcinek.server.webservice.guice.GuiceJUnitRunner;
-import com.morcinek.server.webservice.resources.AccountResource;
-import com.morcinek.server.webservice.resources.UserResource;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -23,6 +18,7 @@ public class AccountResourceTest {
 
     @ClassRule
     public static ServerRule serverRule = new ServerRule(8080, "/api");
+    private static Long user2Id;
 
     @BeforeClass
     public static void before() {
@@ -46,6 +42,14 @@ public class AccountResourceTest {
         account.setAdmin(user);
         entityManager.persist(account);
         entityManager.flush();
+
+        User user2 = new User();
+        user2.setName("marcin");
+        user2.setEmail("marcin@ogorek.com");
+        user2.setPassword("masakra");
+        entityManager.persist(user2);
+        entityManager.flush();
+        user2Id = user2.getId();
         tx.commit();
     }
 
@@ -77,7 +81,7 @@ public class AccountResourceTest {
     public void addUserToAccountTest() {
         given().
                 queryParam("accountId", 2).
-                queryParam("userId", 1).
+                queryParam("userId", user2Id).
                 expect().
                 statusCode(200).
                 when().

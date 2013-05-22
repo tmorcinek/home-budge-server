@@ -3,7 +3,6 @@ package com.morcinek.server;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.morcinek.server.model.TestUser;
-import com.morcinek.server.model.User;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -69,7 +68,7 @@ public class UserResourceTest {
 
     @Test
     public void userUpdate() {
-        User user = new User("karamba@pl.com", "pass");
+        TestUser user = new TestUser("karamba@pl.com", "pass");
         given().
                 contentType(ContentType.JSON).
                 body(user).

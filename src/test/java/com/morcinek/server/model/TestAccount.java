@@ -17,20 +17,27 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @XmlRootElement
+@XmlAccessorType(value = XmlAccessType.FIELD)
 public class TestAccount {
 
-//    private Long id;
+    private Long id;
 
     private String name;
-//
-//    private Calendar startDate;
-//
-//    private TestUser admin;
-//
-//    private List<TestUser> users = new ArrayList<TestUser>();
-//
-//    private List<TestRecord> records = new ArrayList<TestRecord>();
 
+    private Calendar startDate;
+
+    private TestUser admin;
+
+    private List<TestUser> users = new ArrayList<TestUser>();
+
+    @XmlTransient
+    private List<TestRecord> records = new ArrayList<TestRecord>();
+
+    public void setAdmin(TestUser admin) {
+        this.admin = admin;
+        admin.addAccount(this);
+        users.add(admin);
+    }
 
     public String getName() {
         return name;
@@ -38,5 +45,9 @@ public class TestAccount {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

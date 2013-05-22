@@ -1,7 +1,5 @@
 package com.morcinek.server.model;
 
-import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
-
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -67,6 +65,7 @@ public class Account {
     public void setAdmin(User admin) {
         this.admin = admin;
         admin.addAccount(this);
+        users.add(admin);
     }
 
     public void setRecords(List<Record> records) {

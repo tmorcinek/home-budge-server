@@ -70,17 +70,46 @@ public class RecordResource {
     }
 
     @POST
-    public Response updateRecord(Record record) {
+    public Response updateRecord(Record updatedRecord) {
+        validateRecord(updatedRecord);
+        Record record = entityManager.find(Record.class, updatedRecord.getId());
+        updateRecord(updatedRecord, record);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         try {
             entityManager.merge(record);
+            entityManager.flush();
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
             throw new UserLoginException();
         }
         return Response.status(Response.Status.OK.getStatusCode()).entity(record).build();
+    }
+
+    private void updateRecord(Record updatedRecord, Record record) {
+        if (updatedRecord.getTitle() != null){
+            record.setTitle(updatedRecord.getTitle());
+        }
+        if (updatedRecord.getDescription() != null){
+            record.setDescription(updatedRecord.getDescription());
+        }
+        if (updatedRecord.getAmount() != null){
+            record.setAmount(updatedRecord.getAmount());
+        }
+//        if (updatedRecord.getUsers() != null && !updatedRecord.getUsers().isEmpty()){
+//            List<User> users = new ArrayList<User>();
+//            for (User user : updatedRecord.getUsers()) {
+//                users.add(entityManager.find(User.class, user.getId()));
+//            }
+//            record.setUsers(users);
+//        }
+    }
+
+    private void validateRecord(Record record) {
+        if (record.getId() == null) {
+            throw new UserLoginException("Missing record id.");
+        }
     }
 
 }
