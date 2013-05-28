@@ -35,9 +35,6 @@ public class Account {
     @Temporal(TemporalType.DATE)
     private Calendar startDate;
 
-    @ManyToOne(optional = false)
-    private User admin;
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<User> users = new ArrayList<User>();
 
@@ -60,12 +57,6 @@ public class Account {
 
     public void setStartDate(Calendar startDate) {
         this.startDate = startDate;
-    }
-
-    public void setAdmin(User admin) {
-        this.admin = admin;
-        admin.addAccount(this);
-        users.add(admin);
     }
 
     public void setRecords(List<Record> records) {
@@ -91,10 +82,6 @@ public class Account {
     public void addUser(User user) {
         users.add(user);
         user.addAccount(this);
-    }
-
-    public User getAdmin() {
-        return admin;
     }
 
     public List<Record> getRecords() {

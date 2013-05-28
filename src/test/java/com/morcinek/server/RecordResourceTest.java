@@ -36,7 +36,7 @@ public class RecordResourceTest {
         entityManager.persist(user);
         Account account = new Account();
         account.setName("Limanowskiego211");
-        account.setAdmin(user);
+        account.addUser(user);
         entityManager.persist(account);
         Record record = new Record();
         record.setAccount(account);

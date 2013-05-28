@@ -26,18 +26,10 @@ public class TestAccount {
 
     private Calendar startDate;
 
-    private TestUser admin;
-
     private List<TestUser> users = new ArrayList<TestUser>();
 
     @XmlTransient
     private List<TestRecord> records = new ArrayList<TestRecord>();
-
-    public void setAdmin(TestUser admin) {
-        this.admin = admin;
-        admin.addAccount(this);
-        users.add(admin);
-    }
 
     public String getName() {
         return name;

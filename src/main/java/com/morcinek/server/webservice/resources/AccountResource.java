@@ -44,7 +44,7 @@ public class AccountResource {
         tx.begin();
         try {
             User admin = entityManager.find(User.class, userId);
-            account.setAdmin(admin);
+            account.addUser(admin);
             entityManager.persist(account);
             entityManager.flush();
             tx.commit();
