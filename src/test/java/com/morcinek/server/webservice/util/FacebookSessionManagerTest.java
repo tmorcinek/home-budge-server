@@ -4,10 +4,9 @@ import com.google.inject.Inject;
 import com.morcinek.server.webservice.guice.SimpleGuiceJUnitRunner;
 import com.morcinek.server.webservice.util.facebook.FacebookSessionManager;
 import org.fest.assertions.Assertions;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Date;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,5 +31,18 @@ public class FacebookSessionManagerTest {
 
         // then
         Assertions.assertThat(isTokenValid).isFalse();
+    }
+
+    @Ignore
+    @Test
+    public void validateTokenTest() throws Exception {
+        // given
+        String accessToken = "CAAClOpMkkZC0BAAgijiGt33bpZAE0j1jcBNCdHw9XOBd9JfkEdgAKTgVZAilqk7O6GW6BUl6JPM2Vvxh79tdXOT13jZCTc88S5SZCQ1dJFxqvKupOp4S1QbfHDwj1pYx5CUEuZCbkysIQDdQZCdDdcR";
+
+        // when
+        boolean isTokenValid = sessionManager.validateToken(accessToken);
+
+        // then
+        Assertions.assertThat(isTokenValid).isTrue();
     }
 }

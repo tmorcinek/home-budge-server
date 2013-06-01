@@ -44,7 +44,7 @@ public class FacebookSessionManager {
 
     private Map<Integer, String> createTokensMap() {
         return new MapMaker()
-                .expiration(1, TimeUnit.HOURS)
+                .expiration(2, TimeUnit.HOURS)
                 .makeComputingMap(
                         new Function<Integer, String>() {
                             public String apply(Integer string) {
@@ -85,4 +85,18 @@ public class FacebookSessionManager {
         }
         return null;
     }
+
+//    // TODO needs to finish this function to get either error or properties from stream.
+//    private void extendTokenLife(String accessToken){
+//        HashMap<String, String> params = new HashMap<String, String>();
+//        params.put("grant_type", "fb_exchange_token");
+//        params.put("client_id", CLIENT_ID);
+//        params.put("client_secret", CLIENT_SECRET);
+//        params.put("fb_exchange_token", appToken);
+//        try {
+//            webGateway.executeGetRequest(MAIN_URL, params);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
