@@ -1,6 +1,8 @@
 package com.morcinek.server.webservice.guice;
 
 import com.google.inject.AbstractModule;
+import com.morcinek.server.webservice.util.network.WebGateway;
+import com.morcinek.server.webservice.util.network.WebGatewayInterface;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -19,5 +21,6 @@ public class CoreModule extends AbstractModule{
     protected void configure() {
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit");
         bind(EntityManager.class).toInstance(factory.createEntityManager());
+        bind(WebGatewayInterface.class).to(WebGateway.class);
     }
 }
