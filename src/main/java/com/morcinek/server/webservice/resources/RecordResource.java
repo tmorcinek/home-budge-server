@@ -43,6 +43,7 @@ public class RecordResource {
     @GET
     public List<Record> getRecords(@QueryParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
+        entityManager.refresh(account);
         return account.getRecords();
     }
 

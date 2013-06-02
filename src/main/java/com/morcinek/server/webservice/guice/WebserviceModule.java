@@ -2,7 +2,11 @@ package com.morcinek.server.webservice.guice;
 
 import com.google.inject.servlet.ServletModule;
 import com.morcinek.server.webservice.resources.*;
+import com.owlike.genson.ext.jersey.GensonJsonConverter;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+
+import javax.ws.rs.ext.MessageBodyReader;
+import javax.ws.rs.ext.MessageBodyWriter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,6 +21,10 @@ public class WebserviceModule extends ServletModule {
     protected void configureServlets() {
         bindRestResources();
 
+        // genson have advantage of serializing Lists
+        bind(MessageBodyReader.class).to(GensonJsonConverter.class);
+        bind(MessageBodyWriter.class).to(GensonJsonConverter.class);
+
         filter("/*").through(HBRequestFilter.class);
         serve("/*").with(GuiceContainer.class);
     }
@@ -25,10 +33,10 @@ public class WebserviceModule extends ServletModule {
      * bind the REST resources
      */
     protected void bindRestResources() {
-        bind(SampleResource.class);
         bind(UserResource.class);
         bind(AccountResource.class);
         bind(RecordResource.class);
+        bind(BalanceResource.class);
         bind(AuthorResource.class);
     }
 

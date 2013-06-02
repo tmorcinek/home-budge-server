@@ -55,14 +55,6 @@ public class Account {
         this.name = name;
     }
 
-    public void setStartDate(Calendar startDate) {
-        this.startDate = startDate;
-    }
-
-    public void setRecords(List<Record> records) {
-        this.records = records;
-    }
-
     public Long getId() {
         return id;
     }

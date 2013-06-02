@@ -81,34 +81,6 @@ public class UserResource {
         throw new MethodNotImplementedException();
     }
 
-//    public Response deleteUser(User user) {
-//        EntityTransaction tx = entityManager.getTransaction();
-//        tx.begin();
-//        try {
-//            user = getCreator(user.getEmail(),user.getPassword());
-//            entityManager.remove(user);
-//            tx.commit();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new UserLoginException();
-//        }
-//        return Response.status(Response.Status.OK.getStatusCode()).build();
-//    }
-//
-//    public Response deleteUser(long userId) {
-//        EntityTransaction tx = entityManager.getTransaction();
-//        tx.begin();
-//        try {
-//            User user = entityManager.find(User.class, userId);
-//            entityManager.remove(user);
-//            tx.commit();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new UserLoginException();
-//        }
-//        return Response.status(Response.Status.OK.getStatusCode()).build();
-//    }
-
     private void checkBasicData(User user) {
         if (user.getEmail() == null || user.getPassword() == null) {
             throw new UserLoginException();
@@ -120,5 +92,4 @@ public class UserResource {
             throw new UserLoginException();
         }
     }
-
 }

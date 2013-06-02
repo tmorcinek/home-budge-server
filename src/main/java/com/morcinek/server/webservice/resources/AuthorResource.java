@@ -32,15 +32,15 @@ public class AuthorResource {
     }
 
     @GET
-    public List<Author> getAuthors() {
-        return authors;
+    public Response getAuthors() {
+        return Response.status(Response.Status.OK).entity(authors).build();
     }
 
     @GET
     @Path("{id}")
     public Response getAuthor(@PathParam("id") int id) {
         try {
-            return Response.status(Response.Status.CREATED).entity(authors.get(id - 1)).build();
+            return Response.status(Response.Status.OK).entity(authors.get(id - 1)).build();
         } catch (IndexOutOfBoundsException e) {
             return Response.status(Response.Status.NO_CONTENT).build();
         }

@@ -2,20 +2,17 @@ package com.morcinek.server.webservice.util;
 
 import com.google.inject.Singleton;
 import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.module.SimpleModule;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.type.TypeFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
-import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -66,5 +63,14 @@ public class GenericParser {
             }
         }
         return sb.toString();
+    }
+
+    public <T> List<T> parseList(String jsonString, Class<T> type) {
+        try {
+            return objectMapper.readValue(jsonString, TypeFactory.defaultInstance().constructCollectionType(List.class, type));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return null;
     }
 }
