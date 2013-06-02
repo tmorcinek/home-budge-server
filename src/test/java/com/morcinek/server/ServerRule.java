@@ -5,7 +5,7 @@ import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.morcinek.server.webservice.guice.CoreTestModule;
-import com.morcinek.server.webservice.guice.WebserviceModule;
+import com.morcinek.server.webservice.guice.WebserviceTestModule;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -39,7 +39,7 @@ public class ServerRule extends ExternalResource {
             @Override
             protected Injector getInjector() {
                 entityManager = Persistence.createEntityManagerFactory("persistenceUnitTest").createEntityManager();
-                return Guice.createInjector(new CoreTestModule(entityManager), new WebserviceModule());
+                return Guice.createInjector(new CoreTestModule(entityManager), new WebserviceTestModule());
             }
         });
         root.addFilter(GuiceFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));

@@ -11,25 +11,13 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
  * Time: 8:41 PM
  * To change this template use File | Settings | File Templates.
  */
-public class WebserviceModule extends ServletModule {
+public class WebserviceTestModule extends WebserviceModule {
 
     @Override
     protected void configureServlets() {
         bindRestResources();
 
-        filter("/*").through(HBRequestFilter.class);
         serve("/*").with(GuiceContainer.class);
-    }
-
-    /**
-     * bind the REST resources
-     */
-    protected void bindRestResources() {
-        bind(SampleResource.class);
-        bind(UserResource.class);
-        bind(AccountResource.class);
-        bind(RecordResource.class);
-        bind(AuthorResource.class);
     }
 
 }

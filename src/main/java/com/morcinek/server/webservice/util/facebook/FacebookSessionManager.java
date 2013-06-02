@@ -63,14 +63,20 @@ public class FacebookSessionManager {
 
 
     public boolean validateToken(String accessToken) {
+        if (accessToken == null){
+            return false;
+        }
+
         if (tokensMap.containsKey(accessToken.hashCode())) {
             return true;
         }
+
         Data data = getDataFromToken(accessToken);
         if (data.isIs_valid()) {
             tokensMap.put(accessToken.hashCode(), accessToken);
             return true;
         }
+
         return false;
     }
 
