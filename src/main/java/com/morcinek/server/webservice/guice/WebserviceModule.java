@@ -2,11 +2,15 @@ package com.morcinek.server.webservice.guice;
 
 import com.google.inject.servlet.ServletModule;
 import com.morcinek.server.webservice.resources.*;
-import com.owlike.genson.ext.jersey.GensonJsonConverter;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+//import com.owlike.genson.ext.jersey.GensonJsonConverter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,10 +24,6 @@ public class WebserviceModule extends ServletModule {
     @Override
     protected void configureServlets() {
         bindRestResources();
-
-        // genson have advantage of serializing Lists
-        bind(MessageBodyReader.class).to(GensonJsonConverter.class);
-        bind(MessageBodyWriter.class).to(GensonJsonConverter.class);
 
         filter("/*").through(HBRequestFilter.class);
         serve("/*").with(GuiceContainer.class);

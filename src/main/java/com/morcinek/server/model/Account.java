@@ -1,5 +1,7 @@
 package com.morcinek.server.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -39,6 +41,7 @@ public class Account {
     private List<User> users = new ArrayList<User>();
 
     @XmlTransient
+    @JsonIgnore
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Record> records = new ArrayList<Record>();
 

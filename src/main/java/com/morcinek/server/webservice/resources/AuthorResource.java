@@ -8,6 +8,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -18,12 +19,9 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @Path("/author")
-@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+@Produces({MediaType.APPLICATION_JSON})
+@Consumes({MediaType.APPLICATION_JSON})
 public class AuthorResource {
-
-    @Inject
-    private EntityManager entityManager;
 
     private List<Author> authors = new ArrayList<Author>();
 

@@ -4,12 +4,13 @@
 	<groupId>com.morcinek.server</groupId>
 	<artifactId>home-budget</artifactId>
 	<version>0.0.1</version>
+    <packaging>war</packaging>
 
     <!-- properties makes look better complicated pom files -->
     <properties>
         <project.java.version>1.7</project.java.version>
         <jetty.version>8.1.3.v20120416</jetty.version>
-        <jersey.version>1.12</jersey.version>
+        <jersey.version>1.16</jersey.version>
         <guice.version>3.0</guice.version>
     </properties>
 
@@ -31,25 +32,25 @@
                     <excludedGroups>slow</excludedGroups>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-dependency-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>copy-dependencies</id>-->
-                        <!--<phase>prepare-package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>copy-dependencies</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<outputDirectory>${project.build.directory}/lib</outputDirectory>-->
-                            <!--<overWriteReleases>false</overWriteReleases>-->
-                            <!--<overWriteSnapshots>false</overWriteSnapshots>-->
-                            <!--<overWriteIfNewer>true</overWriteIfNewer>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -149,6 +150,7 @@
             <artifactId>jersey-json</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava-collections</artifactId>
@@ -158,7 +160,7 @@
         <dependency>
             <groupId>com.owlike</groupId>
             <artifactId>genson</artifactId>
-            <version>0.94</version>
+            <version>0.95</version>
         </dependency>
     </dependencies>
 

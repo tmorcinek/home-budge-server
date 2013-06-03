@@ -23,8 +23,8 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @Path("/account")
-@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+@Produces({MediaType.APPLICATION_JSON})
+@Consumes({MediaType.APPLICATION_JSON})
 public class AccountResource {
 
     @Inject
@@ -33,7 +33,7 @@ public class AccountResource {
     @GET
     public List<User> getAccountUsers(@QueryParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
-        entityManager.detach(account);
+        entityManager.refresh(account);
         return account.getUsers();
     }
 

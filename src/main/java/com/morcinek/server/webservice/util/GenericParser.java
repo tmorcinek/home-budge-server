@@ -1,10 +1,9 @@
 package com.morcinek.server.webservice.util;
 
 import com.google.inject.Singleton;
-import org.codehaus.jackson.JsonParser;
+import com.owlike.genson.Genson;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.type.TypeFactory;
 
 import java.io.BufferedReader;

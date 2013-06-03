@@ -1,5 +1,7 @@
 package com.morcinek.server.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -49,6 +51,7 @@ public class Record {
     private Double amount;
 
     @XmlTransient
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.LAZY)
     private Account account;
 

@@ -24,8 +24,8 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 @Path("/balance")
-@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+@Produces({MediaType.APPLICATION_JSON})
+@Consumes({MediaType.APPLICATION_JSON})
 public class BalanceResource {
 
     @Inject
@@ -58,10 +58,10 @@ public class BalanceResource {
 
     private List<Record> getRecordsForAccount(long accountId) {
         Account account = entityManager.find(Account.class, accountId);
-        entityManager.refresh(account);
         if (account == null){
             return new ArrayList<>();
         }
+        entityManager.refresh(account);
         return account.getRecords();
     }
 
