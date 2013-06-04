@@ -4,7 +4,6 @@ import com.google.inject.Inject;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.Record;
 import com.morcinek.server.model.User;
-import com.morcinek.server.webservice.exceptions.MethodNotImplementedException;
 import com.morcinek.server.webservice.exceptions.UserLoginException;
 
 import javax.persistence.EntityManager;
@@ -33,11 +32,9 @@ public class RecordResource {
 
     @GET
     @Path("{recordId}")
-    public Record getRecord(@PathParam("recordId") long recordId) {
-        TypedQuery<Record> namedQuery = entityManager.createNamedQuery("findRecordById", Record.class);
-        namedQuery.setParameter("id", recordId);
-        Record record = namedQuery.getSingleResult();
-        return record;
+    public Response getRecord(@PathParam("recordId") long recordId) {
+        Record record = entityManager.find(Record.class, recordId);
+        return ResponseFactory.createOkResponse(record);
     }
 
     @GET
@@ -67,7 +64,7 @@ public class RecordResource {
             e.printStackTrace();
             throw new UserLoginException();
         }
-        return Response.status(Response.Status.CREATED.getStatusCode()).entity(record).build();
+        return ResponseFactory.createCreatedResponse(record);
     }
 
     @POST
@@ -79,23 +76,23 @@ public class RecordResource {
         tx.begin();
         try {
             entityManager.merge(record);
-            entityManager.flush();
+            entityManager.refresh(record);
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
             throw new UserLoginException();
         }
-        return Response.status(Response.Status.OK.getStatusCode()).entity(record).build();
+        return ResponseFactory.createOkResponse(record);
     }
 
     private void updateRecord(Record updatedRecord, Record record) {
-        if (updatedRecord.getTitle() != null){
+        if (updatedRecord.getTitle() != null) {
             record.setTitle(updatedRecord.getTitle());
         }
-        if (updatedRecord.getDescription() != null){
+        if (updatedRecord.getDescription() != null) {
             record.setDescription(updatedRecord.getDescription());
         }
-        if (updatedRecord.getAmount() != null){
+        if (updatedRecord.getAmount() != null) {
             record.setAmount(updatedRecord.getAmount());
         }
 //        if (updatedRecord.getUsers() != null && !updatedRecord.getUsers().isEmpty()){

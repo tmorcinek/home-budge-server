@@ -1,7 +1,5 @@
 package com.morcinek.server.webservice.guice;
 
-import com.google.inject.servlet.ServletModule;
-import com.morcinek.server.webservice.resources.*;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 /**

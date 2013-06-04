@@ -1,7 +1,10 @@
 package com.morcinek.server;
 
 import com.jayway.restassured.RestAssured;
-import com.morcinek.server.model.*;
+import com.morcinek.server.model.Account;
+import com.morcinek.server.model.Balance;
+import com.morcinek.server.model.ModelFactory;
+import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.util.GenericParser;
 import org.fest.assertions.Assertions;
 import org.fest.assertions.Delta;
@@ -25,10 +28,6 @@ public class BalanceResourceTest {
 
     private static Long accountId;
 
-    private static Long userId;
-    private static Long userId1;
-    private static Long userId2;
-
     @BeforeClass
     public static void before() {
         RestAssured.baseURI = "http://localhost:8080/api";
@@ -39,12 +38,9 @@ public class BalanceResourceTest {
         EntityManager entityManager = serverRule.getEntityManager();
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
-        User user = ModelFactory.createUser(entityManager, "marek", "marciasan@morcinek.com", "tomek");
-        userId = user.getId();
-        User user1 = ModelFactory.createUser(entityManager, "maniek", "maniek@morcinek.com", "tomek");
-        userId1 = user1.getId();
-        User user2 = ModelFactory.createUser(entityManager, "tomislaw", "tomislaw@morcinek.com", "tomek");
-        userId2 = user2.getId();
+        User user = ModelFactory.createUser(entityManager, 101, "marek", "marciasan@morcinek.com");
+        User user1 = ModelFactory.createUser(entityManager, 102, "maniek", "maniek@morcinek.com");
+        User user2 = ModelFactory.createUser(entityManager, 103, "tomislaw", "tomislaw@morcinek.com");
         Account account = ModelFactory.createAccount(entityManager, "Limanowskiego 33", user, user1, user2);
         accountId = account.getId();
         ModelFactory.createRecord(entityManager, account, 213.22, "zakupy", user, user, user, user1, user2);
@@ -78,11 +74,11 @@ public class BalanceResourceTest {
         //then
         Assertions.assertThat(balances).hasSize(3);
         for (Balance balance : balances) {
-            if (balance.getUserId() == userId) {
+            if (balance.getUserId() == 101) {
                 Assertions.assertThat(balance.getBalance()).isEqualTo(134.29, Delta.delta(0.01));
-            } else if (balance.getUserId() == userId1) {
-                Assertions.assertThat(balance.getBalance()).isEqualTo(-65.92,Delta.delta(0.01));
-            } else if (balance.getUserId() == userId2) {
+            } else if (balance.getUserId() == 102) {
+                Assertions.assertThat(balance.getBalance()).isEqualTo(-65.92, Delta.delta(0.01));
+            } else if (balance.getUserId() == 103) {
                 Assertions.assertThat(balance.getBalance()).isEqualTo(-68.36, Delta.delta(0.01));
             }
         }

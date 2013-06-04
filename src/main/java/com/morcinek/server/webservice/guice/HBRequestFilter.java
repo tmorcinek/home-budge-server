@@ -2,7 +2,7 @@ package com.morcinek.server.webservice.guice;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.morcinek.server.webservice.util.facebook.FacebookSessionManager;
+import com.morcinek.server.webservice.util.SessionManager;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import java.io.IOException;
 public class HBRequestFilter implements Filter {
 
     @Inject
-    private FacebookSessionManager facebookSessionManager;
+    private SessionManager sessionManager;
 
 
     @Override
@@ -30,7 +30,7 @@ public class HBRequestFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         String accessToken = (String) ((HttpServletRequest) servletRequest).getHeader("accessToken");
-        if (!facebookSessionManager.validateToken(accessToken)) {
+        if (!sessionManager.validateToken(accessToken)) {
             HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {

@@ -1,7 +1,5 @@
 package com.morcinek.server.model;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,10 +19,6 @@ import java.util.List;
 @Entity
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.FIELD)
-@NamedNativeQueries(
-        @NamedNativeQuery(name = "findAccountById", query = "SELECT * FROM ACCOUNT a WHERE a.id = ?id", resultClass = Account.class)
-)
-@Table(name = "ACCOUNT", uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "admin"})})
 public class Account {
 
     @Id
@@ -41,7 +35,6 @@ public class Account {
     private List<User> users = new ArrayList<User>();
 
     @XmlTransient
-    @JsonIgnore
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Record> records = new ArrayList<Record>();
 

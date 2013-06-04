@@ -2,17 +2,16 @@ package com.morcinek.server.webservice.resources;
 
 import com.google.inject.Inject;
 import com.morcinek.server.model.User;
-import com.morcinek.server.webservice.exceptions.MethodNotImplementedException;
-import com.morcinek.server.webservice.exceptions.UserLoginException;
-import com.morcinek.server.webservice.exceptions.UserNotFoundException;
+import com.morcinek.server.model.WebserviceError;
+import com.morcinek.server.webservice.util.SessionManager;
+import com.morcinek.server.webservice.util.facebook.model.UserManager;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,69 +26,39 @@ import java.util.List;
 public class UserResource {
 
     @Inject
-    private EntityManager entityManager;
+    private UserManager userManager;
+
+    @Inject
+    private SessionManager sessionManager;
+
+    @Context
+    Request request;
 
     @GET
-    public User getUser(@QueryParam("email") String email, @QueryParam("password") String password) {
-        checkBasicData(new User(email, password));
-        TypedQuery<User> query = entityManager.createNamedQuery("findUserByEmailAndPassword", User.class);
-        query.setParameter("email", email);
-        query.setParameter("password", password);
-        User user = null;
-        try {
-            List<User> resultList = query.getResultList();
-            user = resultList.get(0);
-        } catch (IndexOutOfBoundsException e) {
-            throw new UserNotFoundException();
+    @Path("{userId}")
+    public Response getUserById(@QueryParam("userId") long id) {
+        User user = userManager.getUser(id);
+        if (user == null) {
+            return ResponseFactory.createBadRequestResponse("There is no user with id = " + id);
         }
-        return user;
-    }
-
-    @PUT
-    @Path("/create")
-    public Response createUser(@QueryParam("email") String email,
-                               @QueryParam("password") String password, @QueryParam("name") String name) {
-        User user = new User(email, password);
-        user.setName(name);
-        return createUser(user);
-    }
-
-    @PUT
-    public Response createUser(User user) {
-        checkBasicData(user);
-        checkName(user);
-        EntityTransaction tx = entityManager.getTransaction();
-        tx.begin();
-        try {
-            entityManager.persist(user);
-            entityManager.flush();
-            tx.commit();
-        } catch (Exception e) {
-            throw new UserLoginException();
-        }
-        return Response.status(Response.Status.CREATED.getStatusCode()).entity(user).build();
-    }
-
-    @PUT
-    @Path("/confirm")
-    public String confirmUser(@QueryParam("email") String email, @QueryParam("token") String token) {
-        throw new MethodNotImplementedException();
+        return ResponseFactory.createOkResponse(new User(user.getId(), user.getEmail(), user.getName()));
     }
 
     @POST
-    public User updateUser(User user) {
-        throw new MethodNotImplementedException();
+    public Response updateUser(@Context HttpServletRequest request, User user) {
+        String accessToken = request.getHeader("accessToken");
+        if (user.getId() != sessionManager.getUserIdFromToken(accessToken)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(new WebserviceError("You are not allowed to modify another user.")).build();
+        }
+        if ("".equals(user.getName())) {
+            return ResponseFactory.createBadRequestResponse("User name cannot be empty.");
+        }
+        try {
+            user = userManager.updateUser(user);
+        } catch (Exception e) {
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
+        }
+        return ResponseFactory.createOkResponse(user);
     }
 
-    private void checkBasicData(User user) {
-        if (user.getEmail() == null || user.getPassword() == null) {
-            throw new UserLoginException();
-        }
-    }
-
-    private void checkName(User user) {
-        if (user.getName() == null) {
-            throw new UserLoginException();
-        }
-    }
 }

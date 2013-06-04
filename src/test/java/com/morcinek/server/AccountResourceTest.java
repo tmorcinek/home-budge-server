@@ -3,6 +3,7 @@ package com.morcinek.server;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.morcinek.server.model.Account;
+import com.morcinek.server.model.ModelFactory;
 import com.morcinek.server.model.TestAccount;
 import com.morcinek.server.model.User;
 import org.junit.BeforeClass;
@@ -18,45 +19,29 @@ public class AccountResourceTest {
 
     @ClassRule
     public static ServerRule serverRule = new ServerRule(8080, "/api");
-    private static Long user2Id;
+    private static Long accountId;
 
     @BeforeClass
     public static void before() {
         RestAssured.baseURI = "http://localhost:8080/api";
     }
 
-
     @BeforeClass
     public static void initAccount() {
         EntityManager entityManager = serverRule.getEntityManager();
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
-        User user = new User();
-        user.setName("tomek");
-        user.setEmail("tomk@morcinek.com");
-        user.setPassword("tomek");
-        entityManager.persist(user);
-        entityManager.flush();
-        Account account = new Account();
-        account.setName("Limanowskiego211");
-        account.addUser(user);
-        entityManager.persist(account);
-        entityManager.flush();
-
-        User user2 = new User();
-        user2.setName("marcin");
-        user2.setEmail("marcin@ogorek.com");
-        user2.setPassword("masakra");
-        entityManager.persist(user2);
-        entityManager.flush();
-        user2Id = user2.getId();
+        User user = ModelFactory.createUser(entityManager, 1, "tomek", "tomk@morcinek.com");
+        Account account = ModelFactory.createAccount(entityManager, "Limanowskiego211", user);
+        accountId = account.getId();
+        ModelFactory.createUser(entityManager, 2, "marcin", "marcin@ogorek.com");
         tx.commit();
     }
 
     @Test
     public void getAccountUsersTest() {
         given().
-                param("accountId", 2).
+                param("accountId", accountId).
                 expect().
                 statusCode(200).
                 when().
@@ -80,8 +65,8 @@ public class AccountResourceTest {
     @Test
     public void addUserToAccountTest() {
         given().
-                queryParam("accountId", 2).
-                queryParam("userId", user2Id).
+                queryParam("accountId", accountId).
+                queryParam("userId", 2).
                 expect().
                 statusCode(200).
                 when().
@@ -91,7 +76,7 @@ public class AccountResourceTest {
     @Test
     public void removeUserToAccountTest() {
         given().
-                param("accountId", 2).
+                param("accountId", accountId).
                 param("userId", 1).
                 expect().
                 statusCode(200).

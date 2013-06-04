@@ -3,10 +3,7 @@ package com.morcinek.server.webservice.guice;
 import com.google.inject.servlet.ServletModule;
 import com.morcinek.server.webservice.resources.*;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +23,9 @@ public class WebserviceModule extends ServletModule {
         bindRestResources();
 
         filter("/*").through(HBRequestFilter.class);
-        serve("/*").with(GuiceContainer.class);
+        Map<String, String> params = new HashMap<>();
+        params.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
+        serve("/*").with(GuiceContainer.class, params);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.morcinek.server.webservice.util;
 import com.google.inject.Inject;
 import com.morcinek.server.webservice.guice.SimpleGuiceJUnitRunner;
 import com.morcinek.server.webservice.util.facebook.FacebookSessionManager;
+import com.morcinek.server.webservice.util.network.FakeWebGateway;
 import org.fest.assertions.Assertions;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class FacebookSessionManagerTest {
     @Test
     public void validateTokenFailedTest() throws Exception {
         // given
-        String accessToken = "CAAClOpMkkZC0BAHnuGZB7AoqjMHlkhiCc3NdcRuR7pn60APTeG05AbWxIRGYn3CdtE0eLRkM25gAKqg9Yj31Srss8IRGdXYI9UWvGmRkwUk3PpWncpPOtump3Xr7STJMYd8u6U25LNy2hO5o9EJyZCRjb7teQAZD";
+        String accessToken = FakeWebGateway.ACCESS_TOKEN_FAILED;
 
         // when
         boolean isTokenValid = sessionManager.validateToken(accessToken);
@@ -33,11 +34,10 @@ public class FacebookSessionManagerTest {
         Assertions.assertThat(isTokenValid).isFalse();
     }
 
-    @Ignore
     @Test
     public void validateTokenTest() throws Exception {
         // given
-        String accessToken = "CAAClOpMkkZC0BAAgijiGt33bpZAE0j1jcBNCdHw9XOBd9JfkEdgAKTgVZAilqk7O6GW6BUl6JPM2Vvxh79tdXOT13jZCTc88S5SZCQ1dJFxqvKupOp4S1QbfHDwj1pYx5CUEuZCbkysIQDdQZCdDdcR";
+        String accessToken = FakeWebGateway.ACCESS_TOKEN_OK;
 
         // when
         boolean isTokenValid = sessionManager.validateToken(accessToken);

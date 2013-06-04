@@ -1,6 +1,10 @@
 package com.morcinek.server.webservice.guice;
 
 import com.google.inject.AbstractModule;
+import com.morcinek.server.webservice.util.SessionManager;
+import com.morcinek.server.webservice.util.facebook.FacebookSessionManager;
+import com.morcinek.server.webservice.util.network.FakeWebGateway;
+import com.morcinek.server.webservice.util.network.WebGatewayInterface;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -32,6 +36,9 @@ public class CoreTestModule extends AbstractModule {
         } else {
             bind(EntityManager.class).toInstance(entityManager);
         }
+        bind(WebGatewayInterface.class).to(FakeWebGateway.class);
+        bind(SessionManager.class).to(FacebookSessionManager.class);
+
     }
 
 }

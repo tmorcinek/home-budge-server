@@ -1,9 +1,9 @@
 package com.morcinek.server.webservice.util.facebook;
 
-import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.morcinek.server.webservice.util.SessionManager;
 import com.morcinek.server.webservice.util.facebook.model.Data;
 import com.morcinek.server.webservice.util.facebook.model.ResponseData;
 import com.morcinek.server.webservice.util.network.WebGatewayInterface;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * To change this template use File | Settings | File Templates.
  */
 @Singleton
-public class FacebookSessionManager {
+public class FacebookSessionManager implements SessionManager {
 
     private final static String MAIN_URL = "https://graph.facebook.com/oauth/access_token";
     private final static String VALIDATE_URL = "https://graph.facebook.com/debug_token";
@@ -33,27 +33,22 @@ public class FacebookSessionManager {
 
     private final String appToken;
 
-    private final Map<Integer, String> tokensMap;
+    private final Map<String, Long> tokensMap;
 
     @Inject
     public FacebookSessionManager(WebGatewayInterface webGateway) throws IOException {
         this.webGateway = webGateway;
         tokensMap = createTokensMap();
-        appToken = getAccessToken(webGateway);
+        appToken = getAccessToken();
     }
 
-    private Map<Integer, String> createTokensMap() {
+    private Map<String, Long> createTokensMap() {
         return new MapMaker()
                 .expiration(2, TimeUnit.HOURS)
-                .makeComputingMap(
-                        new Function<Integer, String>() {
-                            public String apply(Integer string) {
-                                return string.toString();
-                            }
-                        });
+                .makeMap();
     }
 
-    private String getAccessToken(WebGatewayInterface webGateway) throws IOException {
+    private String getAccessToken() throws IOException {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("client_id", CLIENT_ID);
         params.put("client_secret", CLIENT_SECRET);
@@ -62,8 +57,9 @@ public class FacebookSessionManager {
     }
 
 
+    @Override
     public boolean validateToken(String accessToken) {
-        if (accessToken == null){
+        if (accessToken == null) {
             return false;
         }
 
@@ -73,11 +69,16 @@ public class FacebookSessionManager {
 
         Data data = getDataFromToken(accessToken);
         if (data.isIs_valid()) {
-            tokensMap.put(accessToken.hashCode(), accessToken);
+            tokensMap.put(accessToken, data.getUser_id());
             return true;
         }
 
         return false;
+    }
+
+    @Override
+    public Long getUserIdFromToken(String accessToken) {
+        return tokensMap.get(accessToken);
     }
 
     private Data getDataFromToken(String accessToken) {

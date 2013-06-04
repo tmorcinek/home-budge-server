@@ -1,7 +1,5 @@
 package com.morcinek.server.model;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,40 +18,33 @@ import java.util.List;
 @Entity
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.FIELD)
-@NamedQuery(name = "findUserByEmailAndPassword", query = "SELECT u FROM User u WHERE u.email = :email AND u.password = :password")
 public class User {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    private long id;
 
-    @Column(unique = true)
     private String email;
 
-    @Basic(fetch = FetchType.LAZY)
-    private String password;
-
-    @Column(nullable = false)
     private String name;
 
     @XmlTransient
-    @JsonIgnore
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Account> accounts = new ArrayList<Account>();
 
     public User() {
     }
 
-    public User(String email, String password) {
+    public User(long id, String email, String name) {
+        this.id = id;
         this.email = email;
-        this.password = password;
+        this.name = name;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -73,14 +64,6 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public List<Account> getAccounts() {
         return accounts;
     }
@@ -95,14 +78,11 @@ public class User {
         if (o == null || getClass() != o.getClass()) return false;
 
         User user = (User) o;
-
-        if (id != null ? !id.equals(user.id) : user.id != null) return false;
-
-        return true;
+        return hashCode() == user.hashCode();
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return (int) id;
     }
 }

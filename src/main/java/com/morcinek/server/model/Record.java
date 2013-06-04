@@ -1,14 +1,11 @@
 package com.morcinek.server.model;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,7 +18,6 @@ import java.util.List;
 @Entity
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.FIELD)
-@NamedQuery(name = "findRecordById", query = "SELECT r FROM Record r WHERE r.id = :id")
 public class Record {
 
     @Id
@@ -51,7 +47,6 @@ public class Record {
     private Double amount;
 
     @XmlTransient
-    @JsonIgnore
     @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.LAZY)
     private Account account;
 

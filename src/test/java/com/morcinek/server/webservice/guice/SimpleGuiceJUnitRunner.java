@@ -18,7 +18,7 @@ public class SimpleGuiceJUnitRunner extends BlockJUnit4ClassRunner {
 
     public SimpleGuiceJUnitRunner(Class<?> klass) throws InitializationError {
         super(klass);
-        injector = Guice.createInjector(new CoreModule());
+        injector = Guice.createInjector(new CoreTestModule());
     }
 
     @Override

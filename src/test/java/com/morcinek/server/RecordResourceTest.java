@@ -18,6 +18,7 @@ public class RecordResourceTest {
     @ClassRule
     public static ServerRule serverRule = new ServerRule(8080, "/api");
     private static Long recordId;
+    private static Long accountId;
 
     @BeforeClass
     public static void before() {
@@ -29,28 +30,11 @@ public class RecordResourceTest {
         EntityManager entityManager = serverRule.getEntityManager();
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
-        User user = new User();
-        user.setName("tomek");
-        user.setEmail("tomk1@morcinek.com");
-        user.setPassword("tomek");
-        entityManager.persist(user);
-        Account account = new Account();
-        account.setName("Limanowskiego211");
-        account.addUser(user);
-        entityManager.persist(account);
-        Record record = new Record();
-        record.setAccount(account);
-        record.setAmount(213.22);
-        record.setTitle("zakupy");
-        record.setCreator(user);
-        record.setPayer(user);
-        ArrayList<User> users = new ArrayList<User>();
-        users.add(user);
-        record.setUsers(users);
-        entityManager.persist(record);
-        entityManager.flush();
+        User user = ModelFactory.createUser(entityManager, 29, "tomek", "tomk1@morcinek.com");
+        Account account = ModelFactory.createAccount(entityManager,"Limanowskiego211", user);
+        accountId = account.getId();
+        recordId = ModelFactory.createRecord(entityManager,account,213.22,"zakupy",user,user, user).getId();
         tx.commit();
-        recordId = record.getId();
     }
 
     @Test
@@ -66,7 +50,7 @@ public class RecordResourceTest {
     @Test
     public void getRecordListTest() {
         given().
-                param("accountId", 2).
+                param("accountId", accountId).
                 expect().
                 statusCode(200).
                 when().
@@ -75,22 +59,11 @@ public class RecordResourceTest {
 
     @Test
     public void createRecordTest() {
-        TestRecord record = new TestRecord();
-        record.setAmount(213.22);
-        record.setTitle("zakupy");
-        TestAccount account = new TestAccount();
-        account.setId(2L);
-        TestUser e = new TestUser();
-        e.setId(1L);
-
-        record.setCreator(e);
-        record.setPayer(e);
-        ArrayList<TestUser> users = new ArrayList<TestUser>();
-        users.add(e);
-        record.setUsers(users);
-        record.setAccount(account);
+        User e = new User();
+        e.setId(29L);
+        Record record = ModelFactory.createRecord(null, null, 213.22, "zakupy", e, e, e);
         given().
-                param("accountId", 2).
+                param("accountId", accountId).
                 contentType(ContentType.JSON).
                 body(record).
                 expect().

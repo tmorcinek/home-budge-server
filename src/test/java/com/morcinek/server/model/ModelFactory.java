@@ -12,17 +12,17 @@ import java.util.Arrays;
  */
 public class ModelFactory {
 
-    public static User createUser(EntityManager entityManager, String name, String email, String password) {
+    public static User createUser(EntityManager entityManager, long id, String name, String email) {
         User user = new User();
+        user.setId(id);
         user.setName(name);
         user.setEmail(email);
-        user.setPassword(password);
         entityManager.persist(user);
         entityManager.flush();
         return user;
     }
 
-    public static Account createAccount(EntityManager entityManager, String name,  User... users) {
+    public static Account createAccount(EntityManager entityManager, String name, User... users) {
         Account account = new Account();
         account.setName(name);
         for (User user : users) {
@@ -42,8 +42,9 @@ public class ModelFactory {
         record.setCreator(creator);
         record.setPayer(payer);
         record.setUsers(Arrays.asList(users));
-        entityManager.persist(record);
-        entityManager.flush();
+        if (entityManager != null) {
+            entityManager.persist(record);
+        }
         return record;
     }
 }
