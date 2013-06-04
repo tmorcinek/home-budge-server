@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.morcinek.server.model.User;
 import com.morcinek.server.model.WebserviceError;
 import com.morcinek.server.webservice.util.SessionManager;
-import com.morcinek.server.webservice.util.facebook.model.UserManager;
+import com.morcinek.server.database.UserManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;

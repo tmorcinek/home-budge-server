@@ -1,4 +1,4 @@
-package com.morcinek.server.webservice.util.facebook.model;
+package com.morcinek.server.database;
 
 import com.google.inject.Singleton;
 import com.morcinek.server.model.User;
@@ -20,6 +20,14 @@ public class UserManager {
     @Inject
     private EntityManager entityManager;
 
+    public User getUser(long userId) {
+        User user = entityManager.find(User.class, userId);
+        if (user != null) {
+            entityManager.refresh(user);
+        }
+        return user;
+    }
+
     public void createUserIfNotExist(long userId) throws Exception {
         createUserIfNotExist(userId, null, null);
     }
@@ -33,14 +41,6 @@ public class UserManager {
         entityManager.persist(new User(userId, email, name));
         entityManager.flush();
         tx.commit();
-    }
-
-    public User getUser(long userId) {
-        User user = entityManager.find(User.class, userId);
-        if (user != null) {
-            entityManager.refresh(user);
-        }
-        return user;
     }
 
     /**
