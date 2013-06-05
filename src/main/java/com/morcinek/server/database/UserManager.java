@@ -6,6 +6,8 @@ import com.morcinek.server.model.User;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,11 +30,23 @@ public class UserManager {
         return user;
     }
 
+    public User getUserByEmail(String email) {
+        TypedQuery<User> namedQuery = entityManager.createNamedQuery("select u User u where u.email = :email", User.class);
+        namedQuery.setParameter("email", email);
+        return namedQuery.getSingleResult();
+    }
+
+    public List<User> getUsersByName(String name) {
+        TypedQuery<User> namedQuery = entityManager.createNamedQuery("select u User u where u.name = :name", User.class);
+        namedQuery.setParameter("name", name);
+        return namedQuery.getResultList();
+    }
+
     public void createUserIfNotExist(long userId) throws Exception {
         createUserIfNotExist(userId, null, null);
     }
 
-    public void createUserIfNotExist(long userId, String email, String name) throws Exception {
+    public void createUserIfNotExist(long userId, String name, String email) throws Exception {
         if (getUser(userId) != null) {
             return;
         }
@@ -44,19 +58,33 @@ public class UserManager {
     }
 
     /**
-     * @param user (User) value <code>name</code> can be null but not empty string and <code>email</code> can be either
+     * @param
+     * @return
+     * @throws Exception
+     * @see #updateUser(long, String, String)
+     */
+    public User updateUser(User user) throws Exception {
+        return updateUser(user.getId(), user.getEmail(), user.getName());
+    }
+
+    /**
+     * @param userId
+     * @param email
+     * @param name   can be null but not empty string
      * @return
      * @throws Exception
      */
-    public User updateUser(User user) throws Exception {
-        User oldUser = getUser(user.getId());
+    public User updateUser(long userId, String email, String name) throws Exception {
+        User oldUser = getUser(userId);
         entityManager.refresh(oldUser);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
-        if (user.getName() != null) {
-            oldUser.setName(user.getName());
+        if (name != null) {
+            oldUser.setName(name);
         }
-        oldUser.setEmail(user.getEmail());
+        if (email != null) {
+            oldUser.setEmail(email);
+        }
         entityManager.merge(oldUser);
         entityManager.flush();
         tx.commit();

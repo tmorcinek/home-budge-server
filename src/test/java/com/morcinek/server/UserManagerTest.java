@@ -81,11 +81,98 @@ public class UserManagerTest {
     @Test
     public void createIfNotExistTestNotExist() throws Exception {
         // given when
-        userManager.createUserIfNotExist(201);
+        userManager.createUserIfNotExist(202);
 
         // then
-        User user = userManager.getUser(201);
+        User user = userManager.getUser(202);
         Assertions.assertThat(user).isNotNull();
     }
+
+
+    @Test
+    public void createUserWithDetailsTest() throws Exception {
+        // given when
+        userManager.createUserIfNotExist(203, "Tomasz", "morcinek@pl");
+        userManager.createUserIfNotExist(204, "Tomasz", null);
+        userManager.createUserIfNotExist(205, null, "Morcinek@pl");
+        userManager.createUserIfNotExist(206, "", "Morcinek@pl");
+
+        // then
+        validateUser(203, "Tomasz", "morcinek@pl");
+        validateUser(204, "Tomasz", null);
+        validateUser(205, null, "Morcinek@pl");
+        validateUser(206, "", "Morcinek@pl");
+
+    }
+
+    private void validateUser(int userId, String name, String email) {
+        User user = userManager.getUser(userId);
+        Assertions.assertThat(user).isNotNull();
+        Assertions.assertThat(user.getName()).isEqualTo(name);
+        Assertions.assertThat(user.getEmail()).isEqualTo(email);
+    }
+
+
+    @Test
+    public void updateUserTest() throws Exception {
+        // given
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        ModelFactory.createUser(entityManager, 211, "Tomek", "tomasz.morcinek@pl");
+        ModelFactory.createUser(entityManager, 212, "Tomek", "tomasz.morcinek@pl");
+        ModelFactory.createUser(entityManager, 213, null, "tomasz.morcinek@pl");
+        ModelFactory.createUser(entityManager, 214, "Tomek", "mala@karolina.pl");
+        transaction.commit();
+        int size = getUsersCount();
+
+        // when
+        userManager.updateUser(211, null, "Marek");
+        userManager.updateUser(211, "tomek@morcinek", null);
+        userManager.updateUser(212, "jarek@malpa.pl", null);
+        userManager.updateUser(213, "magda@mpk.com", "magda");
+        userManager.updateUser(214, null, "Karolina");
+
+        // then
+        validateUser(211, "Marek", "tomek@morcinek");
+        validateUser(212, "Tomek", "jarek@malpa.pl");
+        validateUser(213, "magda", "magda@mpk.com");
+        validateUser(214, "Karolina", "mala@karolina.pl");
+    }
+
+
+    @Test
+    public void updateUserTest2() throws Exception {
+        // given
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        ModelFactory.createUser(entityManager, 221, "Tomek", "tomasz.morcinek@pl");
+        ModelFactory.createUser(entityManager, 222, "Tomek", "tomasz.morcinek@pl");
+        ModelFactory.createUser(entityManager, 223, "Marek", "tomasz.morcinek@pl");
+        ModelFactory.createUser(entityManager, 224, "Tomek", "mala@karolina.pl");
+        transaction.commit();
+        int size = getUsersCount();
+
+        // when
+        userManager.updateUser(new User(221, null, "Marek"));
+        userManager.updateUser(new User(221, null, "Barbara"));
+        userManager.updateUser(new User(222, "jarek@malpa.pl", null));
+        userManager.updateUser(new User(223, "magda@mpk.com", "magda"));
+        userManager.updateUser(new User(224, null, "Karolina"));
+
+        // then
+        validateUser(221, "Barbara", "tomasz.morcinek@pl");
+        validateUser(222, "Tomek", "jarek@malpa.pl");
+        validateUser(223, "magda", "magda@mpk.com");
+        validateUser(224, "Karolina", "mala@karolina.pl");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void updateUserTestNameEmptyText() throws Exception {
+
+        // given when then
+        userManager.updateUser(0, "djdklsf", "fjdklsajf");
+
+    }
+
 
 }

@@ -20,7 +20,7 @@ import org.junit.runner.RunWith;
 public class FacebookSessionManagerTest {
 
     @Inject
-    private FacebookSessionManager sessionManager;
+    private SessionManager sessionManager;
 
     @Test
     public void validateTokenFailedTest() throws Exception {

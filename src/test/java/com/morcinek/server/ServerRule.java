@@ -21,9 +21,10 @@ public class ServerRule extends ExternalResource {
     private int port;
 
     private final String contextPath;
-    private EntityManager entityManager;
 
     private Server server;
+
+    private TestGuiceServletContextListener servletContextListener;
 
     public ServerRule(int port, String contextPath) {
         this.port = port;
@@ -35,17 +36,21 @@ public class ServerRule extends ExternalResource {
         server = new Server(port);
 
         ServletContextHandler root = new ServletContextHandler(server, contextPath, ServletContextHandler.SESSIONS);
-        root.addEventListener(new GuiceServletContextListener() {
-            @Override
-            protected Injector getInjector() {
-                entityManager = Persistence.createEntityManagerFactory("persistenceUnitTest").createEntityManager();
-                return Guice.createInjector(new CoreTestModule(entityManager), new WebserviceTestModule());
-            }
-        });
+        servletContextListener = new TestGuiceServletContextListener();
+        root.addEventListener(servletContextListener);
         root.addFilter(GuiceFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
         root.addServlet(ServletContainer.class, "/*");
 
         server.start();
+    }
+
+    private class TestGuiceServletContextListener extends  GuiceServletContextListener{
+
+        @Override
+        protected Injector getInjector() {
+            return Guice.createInjector(new CoreTestModule(), new WebserviceTestModule());
+        }
+
     }
 
     @Override
@@ -58,8 +63,7 @@ public class ServerRule extends ExternalResource {
         }
     }
 
-
-    public EntityManager getEntityManager() {
-        return entityManager;
+    public Injector getInjector() {
+        return servletContextListener.getInjector();
     }
 }

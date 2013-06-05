@@ -1,10 +1,9 @@
 package com.morcinek.server.webservice.resources;
 
 import com.google.inject.Inject;
-import com.morcinek.server.model.User;
-import com.morcinek.server.model.WebserviceError;
-import com.morcinek.server.webservice.util.SessionManager;
 import com.morcinek.server.database.UserManager;
+import com.morcinek.server.model.User;
+import com.morcinek.server.webservice.util.SessionManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -36,6 +35,11 @@ public class UserResource {
 
     @GET
     @Path("{userId}")
+    public Response getUserByPathId(@PathParam("userId") long id) {
+        return getUserById(id);
+    }
+
+    @GET
     public Response getUserById(@QueryParam("userId") long id) {
         User user = userManager.getUser(id);
         if (user == null) {
@@ -44,11 +48,25 @@ public class UserResource {
         return ResponseFactory.createOkResponse(new User(user.getId(), user.getEmail(), user.getName()));
     }
 
+    @PUT
+    public Response registerUser(@Context HttpServletRequest request, User user) {
+        Long userIdFromToken = getAccessingUserId(request);
+        if (userIdFromToken == null) {
+            return ResponseFactory.createForbiddenResponse("You are not allowed to register another user.");
+        }
+        try {
+            userManager.createUserIfNotExist(userIdFromToken, user.getName(), user.getEmail());
+        } catch (Exception e) {
+            return ResponseFactory.createBadRequestResponse("Error while creating user.");
+        }
+        return ResponseFactory.createCreatedResponse(userManager.getUser(userIdFromToken));
+    }
+
     @POST
     public Response updateUser(@Context HttpServletRequest request, User user) {
-        String accessToken = request.getHeader("accessToken");
-        if (user.getId() != sessionManager.getUserIdFromToken(accessToken)) {
-            return Response.status(Response.Status.FORBIDDEN).entity(new WebserviceError("You are not allowed to modify another user.")).build();
+        Long userIdFromToken = getAccessingUserId(request);
+        if (userIdFromToken != user.getId()) {
+            return ResponseFactory.createForbiddenResponse("You are not allowed to modify another user.");
         }
         if ("".equals(user.getName())) {
             return ResponseFactory.createBadRequestResponse("User name cannot be empty.");
@@ -59,6 +77,11 @@ public class UserResource {
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
         return ResponseFactory.createOkResponse(user);
+    }
+
+    private Long getAccessingUserId(HttpServletRequest request) {
+        String accessToken = request.getHeader("accessToken");
+        return sessionManager.getUserIdFromToken(accessToken);
     }
 
 }

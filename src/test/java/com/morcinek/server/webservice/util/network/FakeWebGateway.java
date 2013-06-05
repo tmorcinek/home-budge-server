@@ -21,6 +21,7 @@ import java.util.Properties;
 public class FakeWebGateway implements WebGatewayInterface {
 
     public static final String ACCESS_TOKEN_OK = "token_ok";
+    public static final String ACCESS_TOKEN_OK_2 = "token_ok_2";
     public static final String ACCESS_TOKEN_FAILED = "token_failed";
 
     @Inject
@@ -42,6 +43,8 @@ public class FakeWebGateway implements WebGatewayInterface {
     public <T> T executeGetRequest(String url, HashMap<String, String> params, Class<T> type) throws IOException {
         if (params.get("input_token").equals(ACCESS_TOKEN_OK)) {
             return genericParser.parseObject(getClass().getResourceAsStream("/debug_request_ok.json"), type);
+        } else if (params.get("input_token").equals(ACCESS_TOKEN_OK_2)) {
+            return genericParser.parseObject(getClass().getResourceAsStream("/debug_request_ok_2.json"), type);
         } else {
             return genericParser.parseObject(getClass().getResourceAsStream("/debug_request_failed.json"), type);
         }

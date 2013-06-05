@@ -21,14 +21,20 @@ public class AccountResourceTest {
     public static ServerRule serverRule = new ServerRule(8080, "/api");
     private static Long accountId;
 
+    private static EntityManager entityManager;
+
     @BeforeClass
     public static void before() {
         RestAssured.baseURI = "http://localhost:8080/api";
     }
 
     @BeforeClass
+    public static void injectFields() {
+        entityManager = serverRule.getInjector().getInstance(EntityManager.class);
+    }
+
+    @BeforeClass
     public static void initAccount() {
-        EntityManager entityManager = serverRule.getEntityManager();
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         User user = ModelFactory.createUser(entityManager, 1, "tomek", "tomk@morcinek.com");

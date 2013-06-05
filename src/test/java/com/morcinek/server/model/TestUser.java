@@ -1,5 +1,7 @@
 package com.morcinek.server.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,44 +14,24 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @XmlRootElement
+@XmlAccessorType(value = XmlAccessType.FIELD)
 public class TestUser {
 
     private Long id;
 
     private String email;
 
-    private String password;
-
     private String name;
 
-    private List<TestAccount> accounts = new ArrayList<TestAccount>();
+    private List<TestAccount> accounts;
 
     public TestUser() {
     }
 
-    public TestUser(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
-
-    public void setId(Long id) {
+    public TestUser(Long id, String email, String name) {
         this.id = id;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setName(String name) {
         this.name = name;
-    }
-
-    public void setAccounts(List<TestAccount> accounts) {
-        this.accounts = accounts;
     }
 
     public Long getId() {
@@ -60,20 +42,7 @@ public class TestUser {
         return email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public List<TestAccount> getAccounts() {
-        return accounts;
-    }
-
-
-    public void addAccount(TestAccount testAccount) {
-        accounts.add(testAccount);
     }
 }

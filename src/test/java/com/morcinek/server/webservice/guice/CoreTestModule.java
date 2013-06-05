@@ -19,26 +19,12 @@ import javax.persistence.Persistence;
  */
 public class CoreTestModule extends AbstractModule {
 
-    private EntityManager entityManager;
-
-    public CoreTestModule() {
-    }
-
-    public CoreTestModule(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
     @Override
     protected void configure() {
-        if (entityManager == null) {
-            EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnitTest");
-            bind(EntityManager.class).toInstance(factory.createEntityManager());
-        } else {
-            bind(EntityManager.class).toInstance(entityManager);
-        }
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnitTest");
+        bind(EntityManager.class).toInstance(factory.createEntityManager());
         bind(WebGatewayInterface.class).to(FakeWebGateway.class);
         bind(SessionManager.class).to(FacebookSessionManager.class);
-
     }
 
 }

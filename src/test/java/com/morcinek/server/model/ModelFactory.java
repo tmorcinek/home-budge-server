@@ -1,6 +1,7 @@
 package com.morcinek.server.model;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.util.Arrays;
 
 /**
@@ -47,4 +48,20 @@ public class ModelFactory {
         }
         return record;
     }
+
+    public static <T> T getObject(EntityManager entityManager, Class<T> type, long id) {
+        T object = entityManager.find(type, id);
+        entityManager.refresh(object);
+        return object;
+    }
+
+    public static void removeObject(EntityManager entityManager, Object user1) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        entityManager.refresh(user1);
+        entityManager.remove(user1);
+        transaction.commit();
+    }
+
+
 }
