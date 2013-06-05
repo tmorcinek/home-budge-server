@@ -31,30 +31,43 @@ public class UserManager {
     }
 
     public User getUserByEmail(String email) {
-        TypedQuery<User> namedQuery = entityManager.createNamedQuery("select u User u where u.email = :email", User.class);
+        TypedQuery<User> namedQuery = entityManager.createQuery("select u from User u where u.email = :email", User.class);
         namedQuery.setParameter("email", email);
-        return namedQuery.getSingleResult();
+        User singleResult = namedQuery.getSingleResult();
+        if (singleResult != null) {
+            prepareUser(singleResult);
+        }
+        return singleResult;
+    }
+
+    private void prepareUser(User singleResult) {
+        entityManager.refresh(singleResult);
+        singleResult.setAccounts(null);
     }
 
     public List<User> getUsersByName(String name) {
-        TypedQuery<User> namedQuery = entityManager.createNamedQuery("select u User u where u.name = :name", User.class);
-        namedQuery.setParameter("name", name);
-        return namedQuery.getResultList();
+        TypedQuery<User> namedQuery = entityManager.createQuery("select u from User u where u.name like :name", User.class);
+        namedQuery.setParameter("name", "%" + name + "%");
+        List<User> resultList = namedQuery.getResultList();
+        for (User user : resultList) {
+            prepareUser(user);
+        }
+        return resultList;
     }
 
-    public void createUserIfNotExist(long userId) throws Exception {
-        createUserIfNotExist(userId, null, null);
+    public boolean createUserIfNotExist(long userId) throws Exception {
+        return createUserIfNotExist(userId, null, null);
     }
 
-    public void createUserIfNotExist(long userId, String name, String email) throws Exception {
+    public boolean createUserIfNotExist(long userId, String name, String email) throws Exception {
         if (getUser(userId) != null) {
-            return;
+            return false;
         }
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         entityManager.persist(new User(userId, email, name));
-        entityManager.flush();
         tx.commit();
+        return true;
     }
 
     /**
@@ -86,8 +99,9 @@ public class UserManager {
             oldUser.setEmail(email);
         }
         entityManager.merge(oldUser);
-        entityManager.flush();
         tx.commit();
+        entityManager.detach(oldUser);
+        oldUser.setAccounts(null);
         return oldUser;
     }
 }

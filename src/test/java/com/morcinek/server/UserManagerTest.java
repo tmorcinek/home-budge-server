@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -121,7 +122,7 @@ public class UserManagerTest {
         ModelFactory.createUser(entityManager, 211, "Tomek", "tomasz.morcinek@pl");
         ModelFactory.createUser(entityManager, 212, "Tomek", "tomasz.morcinek@pl");
         ModelFactory.createUser(entityManager, 213, null, "tomasz.morcinek@pl");
-        ModelFactory.createUser(entityManager, 214, "Tomek", "mala@karolina.pl");
+        ModelFactory.createUser(entityManager, 214, "Tomek", "klar.mala@karolina.pl");
         transaction.commit();
         int size = getUsersCount();
 
@@ -136,7 +137,7 @@ public class UserManagerTest {
         validateUser(211, "Marek", "tomek@morcinek");
         validateUser(212, "Tomek", "jarek@malpa.pl");
         validateUser(213, "magda", "magda@mpk.com");
-        validateUser(214, "Karolina", "mala@karolina.pl");
+        validateUser(214, "Karolina", "klar.mala@karolina.pl");
     }
 
 
@@ -148,7 +149,7 @@ public class UserManagerTest {
         ModelFactory.createUser(entityManager, 221, "Tomek", "tomasz.morcinek@pl");
         ModelFactory.createUser(entityManager, 222, "Tomek", "tomasz.morcinek@pl");
         ModelFactory.createUser(entityManager, 223, "Marek", "tomasz.morcinek@pl");
-        ModelFactory.createUser(entityManager, 224, "Tomek", "mala@karolina.pl");
+        ModelFactory.createUser(entityManager, 224, "Tomek", "mala@karolinakkk.pl");
         transaction.commit();
         int size = getUsersCount();
 
@@ -163,7 +164,7 @@ public class UserManagerTest {
         validateUser(221, "Barbara", "tomasz.morcinek@pl");
         validateUser(222, "Tomek", "jarek@malpa.pl");
         validateUser(223, "magda", "magda@mpk.com");
-        validateUser(224, "Karolina", "mala@karolina.pl");
+        validateUser(224, "Karolina", "mala@karolinakkk.pl");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -171,6 +172,46 @@ public class UserManagerTest {
 
         // given when then
         userManager.updateUser(0, "djdklsf", "fjdklsajf");
+
+    }
+
+    @Test
+    public void getUsersByNameTest() throws Exception {
+        // given when
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        ModelFactory.createUser(entityManager, 233, "Zonk", "morcinek@pl");
+        ModelFactory.createUser(entityManager, 234, "Zonk Morcinek", "basia@poczta.pl");
+        ModelFactory.createUser(entityManager, 235, "Maly Zonk", "kroper.malpa@pl");
+        ModelFactory.createUser(entityManager, 236, "Krwawa zonk", "Morcinek@pl");
+        ModelFactory.createUser(entityManager, 237, "Krwawa", "Morcinek@pl");
+        transaction.commit();
+
+        // then
+        List<User> tomasz = userManager.getUsersByName("Zonk");
+        Assertions.assertThat(tomasz).hasSize(4);
+        for (User user : tomasz) {
+            Assertions.assertThat(user.getName()).containsIgnoringCase("Zonk");
+        }
+    }
+
+    @Test
+    public void getUserByEmailTest() throws Exception {
+        // given when
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        ModelFactory.createUser(entityManager, 238, "Chyba ty", "twoja.starapl");
+        ModelFactory.createUser(entityManager, 239, "maly Morcinek", "moja.twoja.stara@pl");
+        ModelFactory.createUser(entityManager, 240, "Maly brzydal", "twoja.stara@pl.com");
+        ModelFactory.createUser(entityManager, 241, "Krwawa ktos", "twoja.stara@pl");
+        ModelFactory.createUser(entityManager, 242, "Krwawa", "maly@pl");
+        transaction.commit();
+
+        // then
+        User user = userManager.getUserByEmail("twoja.stara@pl");
+        Assertions.assertThat(user).isNotNull();
+        Assertions.assertThat(user.getEmail()).isEqualTo("twoja.stara@pl");
+        Assertions.assertThat(user.getName()).isEqualTo("Krwawa ktos");
 
     }
 

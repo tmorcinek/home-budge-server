@@ -19,7 +19,6 @@ public class ModelFactory {
         user.setName(name);
         user.setEmail(email);
         entityManager.persist(user);
-        entityManager.flush();
         return user;
     }
 
@@ -30,7 +29,6 @@ public class ModelFactory {
             account.addUser(user);
         }
         entityManager.persist(account);
-        entityManager.flush();
         return account;
     }
 

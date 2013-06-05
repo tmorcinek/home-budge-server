@@ -5,8 +5,10 @@ import com.jayway.restassured.http.ContentType;
 import com.morcinek.server.model.ModelFactory;
 import com.morcinek.server.model.TestUser;
 import com.morcinek.server.model.User;
+import com.morcinek.server.webservice.util.GenericParser;
 import com.morcinek.server.webservice.util.SessionManager;
 import com.morcinek.server.webservice.util.network.FakeWebGateway;
+import org.fest.assertions.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -16,6 +18,9 @@ import org.junit.Test;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.ws.rs.core.Response;
+
+import java.io.InputStream;
+import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -27,6 +32,7 @@ public class UserResourceTest {
     private static SessionManager sessionManager;
 
     private static EntityManager entityManager;
+    private static GenericParser genericParser;
 
     @BeforeClass
     public static void before() {
@@ -36,7 +42,7 @@ public class UserResourceTest {
     private static void injectFields() {
         entityManager = serverRule.getInjector().getInstance(EntityManager.class);
         sessionManager = serverRule.getInjector().getInstance(SessionManager.class);
-
+        genericParser = serverRule.getInjector().getInstance(GenericParser.class);
     }
 
     @BeforeClass
@@ -48,6 +54,9 @@ public class UserResourceTest {
         ModelFactory.createUser(entityManager, 302, "Marika", "marika.mala@pl");
         ModelFactory.createUser(entityManager, 303, "loool", "nie.wiem.co.napisac@pl");
         ModelFactory.createUser(entityManager, 304, "Milton Friedman", "mala@karolina.pl");
+        ModelFactory.createUser(entityManager, 305, "mloool tomek", "amala@karolina.pl");
+        ModelFactory.createUser(entityManager, 306, "gloool mma", "mala@karolina.pl.com");
+        ModelFactory.createUser(entityManager, 307, "loool barbara", "malaa@karolina.pl");
         transaction.commit();
     }
 
@@ -108,7 +117,7 @@ public class UserResourceTest {
                 contentType(ContentType.JSON).
                 body(user).
                 expect().
-                statusCode(201).
+                statusCode(200).
                 when().
                 put("/user");
 
@@ -144,7 +153,38 @@ public class UserResourceTest {
         User user1 = ModelFactory.getObject(entityManager, User.class, 1207059L);
         Assert.assertEquals("karamba@pl.com", user1.getEmail());
         Assert.assertEquals("modifiedUser", user1.getName());
+    }
+
+    @Test
+    public void getUserByEmailTest() throws Exception {
+        // given
+        // when
+        // then
+        given().
+                param("email","mala@karolina.pl").
+        expect().
+                body("email",Matchers.is("mala@karolina.pl")).
+                body("name",Matchers.is("Milton Friedman")).
+                body("id",Matchers.is("304")).
+                statusCode(200).
+        when().
+                get("/user/email");
 
     }
 
+    @Test
+    public void getUserByName() throws Exception {
+        // given
+        // when
+        // then
+        String jsonString = given().
+                param("name", "loool").
+                expect().
+                statusCode(200).
+                when().
+                get("/user/name").asString();
+
+        List<User> users = genericParser.parseList(jsonString, User.class);
+        Assertions.assertThat(users).hasSize(4);
+    }
 }

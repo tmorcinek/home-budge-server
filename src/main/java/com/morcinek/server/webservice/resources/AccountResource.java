@@ -46,7 +46,6 @@ public class AccountResource {
             User admin = entityManager.find(User.class, userId);
             account.addUser(admin);
             entityManager.persist(account);
-            entityManager.flush();
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,7 +70,6 @@ public class AccountResource {
         try {
             account.addUser(user);
             entityManager.merge(account);
-            entityManager.flush();
             tx.commit();
         } catch (Exception e) {
             throw new UserLoginException();
@@ -81,6 +79,7 @@ public class AccountResource {
 
     @DELETE
     public Response removeUserFromAccount(@QueryParam("userId") long userId, @QueryParam("accountId") long accountId) {
+        // FIXME add validation to block deleting user with records.
         Account account = entityManager.find(Account.class, accountId);
         User user = entityManager.find(User.class, userId);
         EntityTransaction tx = entityManager.getTransaction();

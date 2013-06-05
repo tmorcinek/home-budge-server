@@ -29,7 +29,7 @@ public class User {
 
     @XmlTransient
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Account> accounts = new ArrayList<Account>();
+    private List<Account> accounts;
 
     public User() {
     }
@@ -65,11 +65,18 @@ public class User {
     }
 
     public List<Account> getAccounts() {
+        if (accounts == null) {
+            accounts = new ArrayList<Account>();
+        }
         return accounts;
     }
 
     public void addAccount(Account account) {
-        accounts.add(account);
+        getAccounts().add(account);
+    }
+
+    public void setAccounts(List<Account> accounts) {
+        this.accounts = accounts;
     }
 
     @Override

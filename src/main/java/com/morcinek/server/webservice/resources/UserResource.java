@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -42,10 +43,31 @@ public class UserResource {
     @GET
     public Response getUserById(@QueryParam("userId") long id) {
         User user = userManager.getUser(id);
+
         if (user == null) {
             return ResponseFactory.createBadRequestResponse("There is no user with id = " + id);
         }
         return ResponseFactory.createOkResponse(new User(user.getId(), user.getEmail(), user.getName()));
+    }
+
+    @GET
+    @Path("/email")
+    public Response getUserByEmail(@QueryParam("email") String email) {
+        User user = userManager.getUserByEmail(email);
+        if (user == null) {
+            return ResponseFactory.createOkResponse(null);
+        }
+        return ResponseFactory.createOkResponse(new User(user.getId(), user.getEmail(), user.getName()));
+    }
+
+    @GET
+    @Path("/name")
+    public Response getUsersByName(@QueryParam("name") String name) {
+        List<User> users = userManager.getUsersByName(name);
+        if (users == null) {
+            return ResponseFactory.createOkResponse(null);
+        }
+        return ResponseFactory.createOkResponse(users);
     }
 
     @PUT
@@ -59,7 +81,7 @@ public class UserResource {
         } catch (Exception e) {
             return ResponseFactory.createBadRequestResponse("Error while creating user.");
         }
-        return ResponseFactory.createCreatedResponse(userManager.getUser(userIdFromToken));
+        return ResponseFactory.createOkResponse(userManager.getUser(userIdFromToken));
     }
 
     @POST
