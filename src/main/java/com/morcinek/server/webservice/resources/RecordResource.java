@@ -4,11 +4,10 @@ import com.google.inject.Inject;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.Record;
 import com.morcinek.server.model.User;
-import com.morcinek.server.webservice.exceptions.UserLoginException;
+import com.morcinek.server.webservice.exceptions.DataValidationException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,10 +37,10 @@ public class RecordResource {
     }
 
     @GET
-    public List<Record> getRecords(@QueryParam("accountId") long accountId) {
+    public Response getRecords(@QueryParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
         entityManager.refresh(account);
-        return account.getRecords();
+        return ResponseFactory.createOkResponse(account.getRecords());
     }
 
     @PUT
@@ -62,25 +61,26 @@ public class RecordResource {
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new UserLoginException();
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
         return ResponseFactory.createCreatedResponse(record);
     }
 
     @POST
     public Response updateRecord(Record updatedRecord) {
-        validateRecord(updatedRecord);
-        Record record = entityManager.find(Record.class, updatedRecord.getId());
-        updateRecord(updatedRecord, record);
-        EntityTransaction tx = entityManager.getTransaction();
-        tx.begin();
+        Record record;
         try {
+            validateRecord(updatedRecord);
+            record = entityManager.find(Record.class, updatedRecord.getId());
+            updateRecord(updatedRecord, record);
+            EntityTransaction tx = entityManager.getTransaction();
+            tx.begin();
             entityManager.merge(record);
             entityManager.refresh(record);
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new UserLoginException();
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
         return ResponseFactory.createOkResponse(record);
     }
@@ -104,9 +104,9 @@ public class RecordResource {
 //        }
     }
 
-    private void validateRecord(Record record) {
+    private void validateRecord(Record record) throws DataValidationException {
         if (record.getId() == null) {
-            throw new UserLoginException("Missing record id.");
+            throw new DataValidationException("Missing record id.");
         }
     }
 

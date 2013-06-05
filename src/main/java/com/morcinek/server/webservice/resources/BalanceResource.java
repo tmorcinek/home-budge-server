@@ -33,7 +33,7 @@ public class BalanceResource {
 
     @GET
     public Response getBalances(@QueryParam("accountId") long accountId) {
-        Map<User,Balance> userBalanceMap = new HashMap<>();
+        Map<User, Balance> userBalanceMap = new HashMap<>();
         List<Record> records = getRecordsForAccount(accountId);
         for (Record record : records) {
             User payer = record.getPayer();
@@ -41,15 +41,15 @@ public class BalanceResource {
             addBalanceToUser(userBalanceMap, payer, amount);
             List<User> users = record.getUsers();
             for (User user : users) {
-                addBalanceToUser(userBalanceMap, user, - amount / users.size());
+                addBalanceToUser(userBalanceMap, user, -amount / users.size());
             }
         }
-        return Response.status(Response.Status.OK).entity(userBalanceMap.values()).build();
+        return ResponseFactory.createOkResponse(userBalanceMap.values());
     }
 
     private void addBalanceToUser(Map<User, Balance> userBalanceMap, User user, double amount) {
         Balance balance = userBalanceMap.get(user);
-        if(balance == null){
+        if (balance == null) {
             userBalanceMap.put(user, new Balance(user.getId(), amount));
         } else {
             balance.addToBalance(amount);
@@ -58,7 +58,7 @@ public class BalanceResource {
 
     private List<Record> getRecordsForAccount(long accountId) {
         Account account = entityManager.find(Account.class, accountId);
-        if (account == null){
+        if (account == null) {
             return new ArrayList<>();
         }
         entityManager.refresh(account);
@@ -69,12 +69,12 @@ public class BalanceResource {
     @Path("/total")
     public Response getTotalBalance(@QueryParam("accountId") long accountId) {
         Query sumQuery = entityManager.createNativeQuery("select sum(AMOUNT) from RECORD where ACCOUNT_ID = ?");
-        sumQuery.setParameter(1,accountId);
+        sumQuery.setParameter(1, accountId);
         Double result = (Double) sumQuery.getSingleResult();
-        if (result == null){
+        if (result == null) {
 //            return Response.status(Response.Status.BAD_REQUEST).entity(new WebserviceError("There is no records for this account.")).build();
             result = 0d;
         }
-        return Response.status(Response.Status.OK).entity(new Balance(null, result)).build();
+        return ResponseFactory.createOkResponse(new Balance(null, result));
     }
 }

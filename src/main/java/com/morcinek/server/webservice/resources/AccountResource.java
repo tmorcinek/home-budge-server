@@ -3,13 +3,10 @@ package com.morcinek.server.webservice.resources;
 import com.google.inject.Inject;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.User;
-import com.morcinek.server.webservice.exceptions.MethodNotImplementedException;
-import com.morcinek.server.webservice.exceptions.UserLoginException;
+import com.morcinek.server.webservice.exceptions.DataValidationException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceUnitUtil;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,24 +36,23 @@ public class AccountResource {
 
     @PUT
     public Response createAccount(@QueryParam("userId") long userId, Account account) {
-        validateAccount(account);
-        EntityTransaction tx = entityManager.getTransaction();
-        tx.begin();
         try {
+            validateAccount(account);
+            EntityTransaction tx = entityManager.getTransaction();
+            tx.begin();
             User admin = entityManager.find(User.class, userId);
             account.addUser(admin);
             entityManager.persist(account);
             tx.commit();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new UserLoginException();
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
-        return Response.status(Response.Status.CREATED.getStatusCode()).entity(account).build();
+        return ResponseFactory.createCreatedResponse(account);
     }
 
-    private void validateAccount(Account account) {
+    private void validateAccount(Account account) throws DataValidationException {
         if (account.getName() == null || account.getName().trim().equals("")) {
-            throw new UserLoginException();
+            throw new DataValidationException("Account name is invalid.");
         }
     }
 
@@ -72,9 +68,9 @@ public class AccountResource {
             entityManager.merge(account);
             tx.commit();
         } catch (Exception e) {
-            throw new UserLoginException();
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
-        return Response.status(Response.Status.OK.getStatusCode()).entity(account).build();
+        return ResponseFactory.createOkResponse(account);
     }
 
     @DELETE
@@ -89,9 +85,9 @@ public class AccountResource {
             entityManager.merge(account);
             tx.commit();
         } catch (Exception e) {
-            throw new UserLoginException();
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
-        return Response.status(Response.Status.OK.getStatusCode()).entity(account).build();
+        return ResponseFactory.createOkResponse(account);
     }
 
 
