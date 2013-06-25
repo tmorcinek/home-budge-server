@@ -8,6 +8,7 @@ import com.morcinek.server.webservice.util.facebook.model.Data;
 import com.morcinek.server.webservice.util.facebook.model.ResponseData;
 import com.morcinek.server.webservice.util.network.WebGatewayInterface;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,6 +80,13 @@ public class FacebookSessionManager implements SessionManager {
     @Override
     public Long getUserIdFromToken(String accessToken) {
         return tokensMap.get(accessToken);
+    }
+
+    @Override
+    public Long getUserIdFromRequest(HttpServletRequest request) {
+        String accessToken = request.getHeader("accessToken");
+        return getUserIdFromToken(accessToken);
+
     }
 
     private Data getDataFromToken(String accessToken) {

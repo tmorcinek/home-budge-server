@@ -44,4 +44,12 @@ public class TestAccount {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public void addUser(TestUser user) {
+        this.users.add(user);
+    }
+
+    public List<TestUser> getUsers() {
+        return users;
+    }
 }

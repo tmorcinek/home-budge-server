@@ -4,13 +4,17 @@ import com.google.inject.Inject;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.exceptions.DataValidationException;
+import com.morcinek.server.webservice.util.SessionManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,11 +31,39 @@ public class AccountResource {
     @Inject
     private EntityManager entityManager;
 
+    @Inject
+    private SessionManager sessionManager;
+
+
+//    @GET
+//    @Path("/users")
+//    public Response getAccountUsers(@QueryParam("accountId") long accountId) {
+//        Account account = entityManager.find(Account.class, accountId);
+//        entityManager.refresh(account);
+//        return ResponseFactory.createOkResponse(account.getUsers());
+//    }
+
     @GET
-    public List<User> getAccountUsers(@QueryParam("accountId") long accountId) {
+    @Path("{accountId}")
+    public Response getAccount(@Context HttpServletRequest request, @PathParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
         entityManager.refresh(account);
-        return account.getUsers();
+        return ResponseFactory.createOkResponse(account);
+    }
+
+    @GET
+    public Response getUserAccounts(@Context HttpServletRequest request) {
+        long userId = sessionManager.getUserIdFromRequest(request);
+        User user = entityManager.find(User.class, userId);
+        entityManager.refresh(user);
+        return ResponseFactory.createOkResponse(user.getAccounts());
+    }
+
+    @PUT
+    @Path("/create")
+    public Response createAccount(@Context HttpServletRequest request, Account account) {
+        long userId = sessionManager.getUserIdFromRequest(request);
+        return createAccount(userId, account);
     }
 
     @PUT
@@ -47,6 +79,7 @@ public class AccountResource {
         } catch (Exception e) {
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
+        entityManager.refresh(account);
         return ResponseFactory.createCreatedResponse(account);
     }
 

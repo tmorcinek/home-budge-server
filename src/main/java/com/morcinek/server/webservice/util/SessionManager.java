@@ -1,5 +1,7 @@
 package com.morcinek.server.webservice.util;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Tomasz Morcinek
@@ -12,5 +14,7 @@ public interface SessionManager {
     public boolean validateToken(String accessToken);
 
     public Long getUserIdFromToken(String accessToken);
+
+    public Long getUserIdFromRequest(HttpServletRequest request);
 
 }

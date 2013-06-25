@@ -31,9 +31,6 @@ public class UserResource {
     @Inject
     private SessionManager sessionManager;
 
-    @Context
-    Request request;
-
     @GET
     @Path("{userId}")
     public Response getUserByPathId(@PathParam("userId") long id) {
@@ -72,7 +69,7 @@ public class UserResource {
 
     @PUT
     public Response registerUser(@Context HttpServletRequest request, User user) {
-        Long userIdFromToken = getAccessingUserId(request);
+        Long userIdFromToken = sessionManager.getUserIdFromRequest(request);
         if (userIdFromToken == null) {
             return ResponseFactory.createForbiddenResponse("You are not allowed to register another user.");
         }
@@ -86,7 +83,7 @@ public class UserResource {
 
     @POST
     public Response updateUser(@Context HttpServletRequest request, User user) {
-        Long userIdFromToken = getAccessingUserId(request);
+        Long userIdFromToken = sessionManager.getUserIdFromRequest(request);
         if (userIdFromToken != user.getId()) {
             return ResponseFactory.createForbiddenResponse("You are not allowed to modify another user.");
         }
@@ -99,11 +96,6 @@ public class UserResource {
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
         return ResponseFactory.createOkResponse(user);
-    }
-
-    private Long getAccessingUserId(HttpServletRequest request) {
-        String accessToken = request.getHeader("accessToken");
-        return sessionManager.getUserIdFromToken(accessToken);
     }
 
 }

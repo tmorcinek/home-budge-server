@@ -5,9 +5,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,17 +26,20 @@ public class Account {
     @Basic(optional = false)
     private String name;
 
+    @Basic(optional = true)
+    private String description;
+
     @Temporal(TemporalType.DATE)
     private Calendar startDate;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<User> users = new ArrayList<User>();
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    private Set<User> users = new HashSet<>();
 
     @XmlTransient
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Record> records = new ArrayList<Record>();
 
-    @PreUpdate
+    @PrePersist
     public void updateStartDate() {
         this.startDate = Calendar.getInstance();
     }
@@ -63,7 +64,7 @@ public class Account {
         return startDate;
     }
 
-    public List<User> getUsers() {
+    public Set<User> getUsers() {
         return users;
     }
 
@@ -80,5 +81,9 @@ public class Account {
     public void addRecord(Record record) {
         records.add(record);
         record.setAccount(this);
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
