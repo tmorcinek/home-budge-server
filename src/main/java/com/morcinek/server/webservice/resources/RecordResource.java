@@ -5,10 +5,13 @@ import com.morcinek.server.model.Account;
 import com.morcinek.server.model.Record;
 import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.exceptions.DataValidationException;
+import com.morcinek.server.webservice.util.SessionManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -29,6 +32,9 @@ public class RecordResource {
     @Inject
     private EntityManager entityManager;
 
+    @Inject
+    private SessionManager sessionManager;
+
     @GET
     @Path("{recordId}")
     public Response getRecord(@PathParam("recordId") long recordId) {
@@ -44,10 +50,11 @@ public class RecordResource {
     }
 
     @PUT
-    public Response createRecord(@QueryParam("accountId") long accountId, Record record) {
+    public Response createRecord(@Context HttpServletRequest request, @QueryParam("accountId") long accountId, Record record) {
         Account account = entityManager.find(Account.class, accountId);
         account.addRecord(record);
-        record.setCreator(entityManager.find(User.class, record.getCreator().getId()));
+        long userId = sessionManager.getUserIdFromRequest(request);
+        record.setCreator(entityManager.find(User.class, userId));
         record.setPayer(entityManager.find(User.class, record.getPayer().getId()));
         List<User> users = new ArrayList<User>();
         for (User user : record.getUsers()) {
@@ -67,11 +74,15 @@ public class RecordResource {
     }
 
     @POST
-    public Response updateRecord(Record updatedRecord) {
+    public Response updateRecord(@Context HttpServletRequest request, Record updatedRecord) {
         Record record;
         try {
             validateRecord(updatedRecord);
             record = entityManager.find(Record.class, updatedRecord.getId());
+            // updating creator to show who updated this record
+            long userId = sessionManager.getUserIdFromRequest(request);
+            record.setCreator(entityManager.find(User.class, userId));
+
             updateRecord(updatedRecord, record);
             EntityTransaction tx = entityManager.getTransaction();
             tx.begin();

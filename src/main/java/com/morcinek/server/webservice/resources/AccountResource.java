@@ -13,6 +13,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -55,8 +56,12 @@ public class AccountResource {
     public Response getUserAccounts(@Context HttpServletRequest request) {
         long userId = sessionManager.getUserIdFromRequest(request);
         User user = entityManager.find(User.class, userId);
-        entityManager.refresh(user);
-        return ResponseFactory.createOkResponse(user.getAccounts());
+        List<Account> accounts = new ArrayList<>(0);
+        if (user != null) {
+            entityManager.refresh(user);
+            accounts = user.getAccounts();
+        }
+        return ResponseFactory.createOkResponse(accounts);
     }
 
     @PUT
@@ -98,6 +103,22 @@ public class AccountResource {
         tx.begin();
         try {
             account.addUser(user);
+            entityManager.merge(account);
+            tx.commit();
+        } catch (Exception e) {
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
+        }
+        return ResponseFactory.createOkResponse(account);
+    }
+
+    @POST
+    @Path("/users")
+    public Response addUserToAccount(@QueryParam("accountId") long accountId, List<User> users) {
+        Account account = entityManager.find(Account.class, accountId);
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
+        try {
+            account.getUsers().addAll(users);
             entityManager.merge(account);
             tx.commit();
         } catch (Exception e) {

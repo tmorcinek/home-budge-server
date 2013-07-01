@@ -24,9 +24,7 @@ public class Record {
     @GeneratedValue
     private Long id;
 
-    // TODO please fix it later not to be opitonal
-    // this is optional only because there is no token system yet.
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = false)
     private User creator;
 
     @ManyToOne(optional = false)

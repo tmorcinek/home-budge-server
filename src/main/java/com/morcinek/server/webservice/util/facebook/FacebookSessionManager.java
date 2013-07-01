@@ -44,9 +44,10 @@ public class FacebookSessionManager implements SessionManager {
     }
 
     private Map<String, Long> createTokensMap() {
-        return new MapMaker()
-                .expiration(2, TimeUnit.HOURS)
-                .makeMap();
+//        return new MapMaker()
+//                .expiration(2, TimeUnit.HOURS)
+//                .makeMap();
+        return new HashMap<>();
     }
 
     private String getAccessToken() throws IOException {
