@@ -1,6 +1,5 @@
 package com.morcinek.server.webservice.util.facebook;
 
-import com.google.common.collect.MapMaker;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.morcinek.server.webservice.util.SessionManager;

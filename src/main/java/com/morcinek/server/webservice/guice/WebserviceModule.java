@@ -25,7 +25,7 @@ public class WebserviceModule extends ServletModule {
         filter("/*").through(HBRequestFilter.class);
         Map<String, String> params = new HashMap<>();
         params.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
-        serve("/*").with(GuiceContainer.class, params);
+        serve("/api/*").with(GuiceContainer.class, params);
     }
 
     /**
