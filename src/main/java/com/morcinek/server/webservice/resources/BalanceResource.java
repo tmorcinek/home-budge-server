@@ -33,7 +33,7 @@ public class BalanceResource {
 
     @GET
     public Response getBalances(@QueryParam("accountId") long accountId) {
-        Map<User, Balance> userBalanceMap = new HashMap<>();
+        Map<User, Balance> userBalanceMap = new HashMap<User, Balance>();
         List<Record> records = getRecordsForAccount(accountId);
         for (Record record : records) {
             User payer = record.getPayer();
@@ -59,7 +59,7 @@ public class BalanceResource {
     private List<Record> getRecordsForAccount(long accountId) {
         Account account = entityManager.find(Account.class, accountId);
         if (account == null) {
-            return new ArrayList<>();
+            return new ArrayList<Record>();
         }
         entityManager.refresh(account);
         return account.getRecords();

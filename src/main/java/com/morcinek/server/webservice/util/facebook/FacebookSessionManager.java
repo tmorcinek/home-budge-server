@@ -46,7 +46,7 @@ public class FacebookSessionManager implements SessionManager {
 //        return new MapMaker()
 //                .expiration(2, TimeUnit.HOURS)
 //                .makeMap();
-        return new HashMap<>();
+        return new HashMap<String, Long>();
     }
 
     private String getAccessToken() throws IOException {

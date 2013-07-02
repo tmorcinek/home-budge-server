@@ -33,7 +33,7 @@ public class Account {
     private Date startDate;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    private Set<User> users = new HashSet<>();
+    private Set<User> users = new HashSet<User>();
 
     @XmlTransient
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)

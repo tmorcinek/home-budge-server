@@ -56,7 +56,7 @@ public class AccountResource {
     public Response getUserAccounts(@Context HttpServletRequest request) {
         long userId = sessionManager.getUserIdFromRequest(request);
         User user = entityManager.find(User.class, userId);
-        List<Account> accounts = new ArrayList<>(0);
+        List<Account> accounts = new ArrayList<Account>(0);
         if (user != null) {
             entityManager.refresh(user);
             accounts = user.getAccounts();
