@@ -35,15 +35,6 @@ public class AccountResource {
     @Inject
     private SessionManager sessionManager;
 
-
-//    @GET
-//    @Path("/users")
-//    public Response getAccountUsers(@QueryParam("accountId") long accountId) {
-//        Account account = entityManager.find(Account.class, accountId);
-//        entityManager.refresh(account);
-//        return ResponseFactory.createOkResponse(account.getUsers());
-//    }
-
     @GET
     @Path("{accountId}")
     public Response getAccount(@Context HttpServletRequest request, @PathParam("accountId") long accountId) {

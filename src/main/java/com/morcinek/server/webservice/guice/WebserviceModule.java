@@ -7,8 +7,6 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 import java.util.HashMap;
 import java.util.Map;
 
-//import com.owlike.genson.ext.jersey.GensonJsonConverter;
-
 /**
  * Created with IntelliJ IDEA.
  * User: tomek

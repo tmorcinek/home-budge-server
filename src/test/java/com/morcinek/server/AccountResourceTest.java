@@ -2,8 +2,10 @@ package com.morcinek.server;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import com.morcinek.server.model.*;
 import org.fest.assertions.Assertions;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -26,14 +28,9 @@ public class AccountResourceTest {
         RestAssured.baseURI = "http://localhost:8080/api";
     }
 
-//    @BeforeClass
-    public static void injectFields() {
-        entityManager = serverRule.getInjector().getInstance(EntityManager.class);
-    }
-
     @BeforeClass
     public static void initAccount() {
-        injectFields();
+        entityManager = serverRule.getInjector().getInstance(EntityManager.class);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         User user = ModelFactory.createUser(entityManager, 1, "tomek", "tomk@morcinek.com");
@@ -45,13 +42,16 @@ public class AccountResourceTest {
     }
 
     @Test
-    public void getAccountUsersTest() {
-        given().
-                param("accountId", accountId).
-                expect().
+    public void getAccountTest() {
+        String s = given().
+        expect().
                 statusCode(200).
-                when().
-                get("/account/users");
+                body("name", Matchers.is("Limanowskiego211")).
+                body("users.name", Matchers.is("tomek")).
+                body("users.email", Matchers.is("tomk@morcinek.com")).
+        when().
+                get("/account/" + accountId).asString();
+        System.out.println(s);
     }
 
     @Test

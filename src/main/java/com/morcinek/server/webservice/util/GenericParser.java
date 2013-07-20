@@ -1,7 +1,6 @@
 package com.morcinek.server.webservice.util;
 
 import com.google.inject.Singleton;
-import com.owlike.genson.Genson;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;

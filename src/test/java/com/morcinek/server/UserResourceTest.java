@@ -108,7 +108,7 @@ public class UserResourceTest {
     @Test
     public void registerUser() {
         // given (Authentication)
-        sessionManager.validateToken(FakeWebGateway.ACCESS_TOKEN_OK_2);
+        sessionManager.validateToken("9207059");
 
         // when (registration of new user)
         TestUser user = new TestUser(9207059L, "gienek.loska@gmail.com", "Eugeniusz");
@@ -131,7 +131,7 @@ public class UserResourceTest {
     @Test
     public void updateUser() {
         // Authentication
-        sessionManager.validateToken(FakeWebGateway.ACCESS_TOKEN_OK);
+        sessionManager.validateToken("1207059");
         // registration of new user
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();

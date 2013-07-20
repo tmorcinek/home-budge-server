@@ -4,15 +4,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceFilter;
 import com.google.inject.servlet.GuiceServletContextListener;
-import com.morcinek.server.webservice.guice.CoreTestModule;
-import com.morcinek.server.webservice.guice.WebserviceTestModule;
+import com.morcinek.server.webservice.guice.modules.CoreTestModule;
+import com.morcinek.server.webservice.guice.modules.WebserviceTestModule;
+import com.morcinek.server.webservice.util.SessionManager;
+import com.morcinek.server.webservice.util.facebook.FakeFacebookSessionManager;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.rules.ExternalResource;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 
@@ -40,7 +40,12 @@ public class ServerRule extends ExternalResource {
 
             @Override
             protected Injector getInjector() {
-                injector = Guice.createInjector(new CoreTestModule(), new WebserviceTestModule());
+                injector = Guice.createInjector(new CoreTestModule() {
+                    @Override
+                    protected void overrideBindings() {
+                        bind(SessionManager.class).to(FakeFacebookSessionManager.class);
+                    }
+                }, new WebserviceTestModule());
                 return injector;
             }
 

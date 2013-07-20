@@ -1,5 +1,6 @@
-package com.morcinek.server.webservice.guice;
+package com.morcinek.server.webservice.guice.modules;
 
+import com.morcinek.server.webservice.guice.WebserviceModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 /**

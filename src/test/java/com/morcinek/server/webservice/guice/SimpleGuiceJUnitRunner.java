@@ -2,6 +2,7 @@ package com.morcinek.server.webservice.guice;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.morcinek.server.webservice.guice.modules.CoreTestModule;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 

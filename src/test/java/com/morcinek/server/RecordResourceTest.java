@@ -2,7 +2,9 @@ package com.morcinek.server;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
 import com.morcinek.server.model.*;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -30,10 +32,6 @@ public class RecordResourceTest {
     @BeforeClass
     public static void injectFields() {
         entityManager = serverRule.getInjector().getInstance(EntityManager.class);
-    }
-
-    @BeforeClass
-    public static void initAccount() {
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         User user = ModelFactory.createUser(entityManager, 29, "tomek", "tomk1@morcinek.com");
@@ -68,14 +66,18 @@ public class RecordResourceTest {
         User e = new User();
         e.setId(29L);
         Record record = ModelFactory.createRecord(null, null, 213.22, "zakupy", e, e, e);
-        given().
+        String json = given().
                 param("accountId", accountId).
                 contentType(ContentType.JSON).
                 body(record).
                 expect().
                 statusCode(201).
+                body("payer.id", Matchers.is("29")).
+                body("title", Matchers.is("zakupy")).
+                body("amount", Matchers.is("213.22")).
                 when().
-                put("/record");
+                put("/record").asString();
+        System.out.println(json);
     }
 
     @Test
