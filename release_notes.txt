@@ -1,0 +1,6 @@
+1.0 Version
+- User: creating, updating, getUserById, getUserByEmail, getUserByName,
+- Account: getAccountById, getUserAccounts, createAccount, addUserToAccount, addUsersToAccount , removeUserFromAccount
+- Record: getRecordById, getRecordsByAccount, createRecord, updateRecord
+- Balance: getTotalBalance, getBalanceForAllUsers
+- Author: getAuthors
