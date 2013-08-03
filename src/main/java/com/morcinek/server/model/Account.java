@@ -28,7 +28,7 @@ public class Account {
     private String description;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Calendar startDate;
+    private Date startDate;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private Set<User> users = new HashSet<User>();
@@ -39,7 +39,7 @@ public class Account {
 
     @PrePersist
     public void updateStartDate() {
-        this.startDate = Calendar.getInstance();
+        this.startDate = new Date();
     }
 
     public void setId(Long id) {

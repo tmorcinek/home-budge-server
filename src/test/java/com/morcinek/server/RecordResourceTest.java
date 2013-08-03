@@ -57,12 +57,13 @@ public class RecordResourceTest {
 
     @Test
     public void getRecordListTest() {
-        given().
+        String accountId1 = given().
                 param("accountId", accountId).
                 expect().
                 statusCode(200).
                 when().
-                get("/record");
+                get("/record").asString();
+        System.out.println(accountId1);
     }
 
     @Test

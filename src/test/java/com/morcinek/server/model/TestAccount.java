@@ -1,14 +1,9 @@
 package com.morcinek.server.model;
 
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,7 +20,7 @@ public class TestAccount {
 
     private String name;
 
-    private Calendar startDate;
+    private Date startDate;
 
     private List<TestUser> users = new ArrayList<TestUser>();
 

@@ -4,7 +4,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,10 +29,10 @@ public class Record {
     private User payer;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Calendar createdDate;
+    private Date createdDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Calendar updatedDate;
+    private Date updatedDate;
 
     @Basic(optional = false)
     private String title;
@@ -51,12 +51,12 @@ public class Record {
 
     @PreUpdate
     public void updateDate() {
-        this.updatedDate = Calendar.getInstance();
+        this.updatedDate = new Date();
     }
 
     @PrePersist
     public void createDate() {
-        this.createdDate = Calendar.getInstance();
+        this.createdDate = new Date();
         this.updatedDate = this.createdDate;
     }
 
@@ -72,11 +72,11 @@ public class Record {
         this.creator = creator;
     }
 
-    public Calendar getCreatedDate() {
+    public Date getCreatedDate() {
         return createdDate;
     }
 
-    public Calendar getUpdatedDate() {
+    public Date getUpdatedDate() {
         return updatedDate;
     }
 

@@ -1,13 +1,16 @@
 package com.morcinek.server.webservice.resources;
 
-import com.google.inject.Inject;
 import com.morcinek.server.model.Author;
 
-import javax.persistence.EntityManager;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,7 +27,7 @@ public class ApplicationResource {
     private List<Author> authors = new ArrayList<Author>();
 
     public ApplicationResource() {
-        authors.add(new Author("Tomaszmau", "Morcinek", "tomasz.morcinek@gmail.com", "tmorcinek.wordpress.com"));
+        authors.add(new Author("Tomasz", "Morcinek", "tomasz.morcinek@gmail.com", "tmorcinek.wordpress.com"));
     }
 
     @GET
@@ -36,7 +39,7 @@ public class ApplicationResource {
     @GET
     @Path("/date")
     public Response getSystemDate() {
-        return Response.status(Response.Status.OK).entity(Calendar.getInstance()).build();
+        return Response.status(Response.Status.OK).entity(new Date()).build();
     }
 
 }

@@ -1,11 +1,11 @@
 package com.morcinek.server.webservice.guice;
 
 import com.google.inject.servlet.ServletModule;
-import com.morcinek.server.webservice.jackson.JacksonConfigurator;
+import com.morcinek.server.webservice.jackson.CustomJacksonJaxbJsonProvider;
 import com.morcinek.server.webservice.resources.*;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 
-import javax.ws.rs.ext.ContextResolver;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class WebserviceModule extends ServletModule {
     protected void configureServlets() {
         bindRestResources();
 
-        bind(ContextResolver.class).to(JacksonConfigurator.class);
+        bind(JacksonJaxbJsonProvider.class).to(CustomJacksonJaxbJsonProvider.class).asEagerSingleton();
 
         filter("/*").through(HBRequestFilter.class);
         Map<String, String> params = new HashMap<String, String>();
