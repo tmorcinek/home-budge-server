@@ -1,9 +1,11 @@
 package com.morcinek.server.webservice.guice;
 
 import com.google.inject.servlet.ServletModule;
+import com.morcinek.server.webservice.jackson.JacksonConfigurator;
 import com.morcinek.server.webservice.resources.*;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
+import javax.ws.rs.ext.ContextResolver;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +22,8 @@ public class WebserviceModule extends ServletModule {
     protected void configureServlets() {
         bindRestResources();
 
+        bind(ContextResolver.class).to(JacksonConfigurator.class);
+
         filter("/*").through(HBRequestFilter.class);
         Map<String, String> params = new HashMap<String, String>();
         params.put("com.sun.jersey.api.json.POJOMappingFeature", "true");
@@ -34,7 +38,7 @@ public class WebserviceModule extends ServletModule {
         bind(AccountResource.class);
         bind(RecordResource.class);
         bind(BalanceResource.class);
-        bind(AuthorResource.class);
+        bind(ApplicationResource.class);
     }
 
 }

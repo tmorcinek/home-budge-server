@@ -2,7 +2,6 @@ package com.morcinek.server;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
 import com.morcinek.server.model.*;
 import org.fest.assertions.Assertions;
 import org.hamcrest.Matchers;
@@ -18,14 +17,14 @@ import static com.jayway.restassured.RestAssured.given;
 public class AccountResourceTest {
 
     @ClassRule
-    public static ServerRule serverRule = new ServerRule(8080, "/api");
+    public static ServerRule serverRule = new ServerRule(8080, "/test/api");
     private static Long accountId;
 
     private static EntityManager entityManager;
 
     @BeforeClass
     public static void before() {
-        RestAssured.baseURI = "http://localhost:8080/api";
+        RestAssured.baseURI = "http://localhost:8080/test/api";
     }
 
     @BeforeClass
@@ -43,22 +42,21 @@ public class AccountResourceTest {
 
     @Test
     public void getAccountTest() {
-        String s = given().
+        given().
         expect().
-                statusCode(200).
-                body("name", Matchers.is("Limanowskiego211")).
-                body("users.name", Matchers.is("tomek")).
-                body("users.email", Matchers.is("tomk@morcinek.com")).
+            statusCode(200).
+            body("name", Matchers.is("Limanowskiego211")).
+            body("users[0].name", Matchers.is("tomek")).
+            body("users[0].email", Matchers.is("tomk@morcinek.com")).
         when().
-                get("/account/" + accountId).asString();
-        System.out.println(s);
+            get("/account/" + accountId).asString();
     }
 
     @Test
     public void createAccountTest() {
         TestAccount account = new TestAccount();
-        TestUser user = new TestUser(3L,null,null);
-        TestUser user2 = new TestUser(1L,null,null);
+        TestUser user = new TestUser(3L, null, null);
+        TestUser user2 = new TestUser(1L, null, null);
         account.addUser(user);
         account.addUser(user2);
         account.setName("Kawalerii 8");
@@ -66,7 +64,7 @@ public class AccountResourceTest {
                 contentType(ContentType.JSON).
                 body(account).
                 param("userId", 1).
-                expect().
+        expect().
                 statusCode(201).
                 when().
                 put("/account");
@@ -84,7 +82,7 @@ public class AccountResourceTest {
         given().
                 queryParam("accountId", accountId).
                 queryParam("userId", 2).
-                expect().
+        expect().
                 statusCode(200).
                 when().
                 post("/account");

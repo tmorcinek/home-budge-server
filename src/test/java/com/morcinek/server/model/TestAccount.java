@@ -19,7 +19,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @XmlRootElement
-@XmlAccessorType(value = XmlAccessType.FIELD)
 public class TestAccount {
 
     private Long id;
@@ -30,7 +29,6 @@ public class TestAccount {
 
     private List<TestUser> users = new ArrayList<TestUser>();
 
-    @XmlTransient
     private List<TestRecord> records = new ArrayList<TestRecord>();
 
     public String getName() {

@@ -27,7 +27,7 @@ import static com.jayway.restassured.RestAssured.given;
 public class UserResourceTest {
 
     @ClassRule
-    public static ServerRule serverRule = new ServerRule(8080, "/api");
+    public static ServerRule serverRule = new ServerRule(8080, "/test/api");
     private static User tomek;
     private static SessionManager sessionManager;
 
@@ -36,13 +36,7 @@ public class UserResourceTest {
 
     @BeforeClass
     public static void before() {
-        RestAssured.baseURI = "http://localhost:8080/api";
-    }
-
-    private static void injectFields() {
-        entityManager = serverRule.getInjector().getInstance(EntityManager.class);
-        sessionManager = serverRule.getInjector().getInstance(SessionManager.class);
-        genericParser = serverRule.getInjector().getInstance(GenericParser.class);
+        RestAssured.baseURI = "http://localhost:8080/test/api";
     }
 
     @BeforeClass
@@ -58,6 +52,12 @@ public class UserResourceTest {
         ModelFactory.createUser(entityManager, 306, "gloool mma", "mala@karolina.pl.com");
         ModelFactory.createUser(entityManager, 307, "loool barbara", "malaa@karolina.pl");
         transaction.commit();
+    }
+
+    private static void injectFields() {
+        entityManager = serverRule.getInjector().getInstance(EntityManager.class);
+        sessionManager = serverRule.getInjector().getInstance(SessionManager.class);
+        genericParser = serverRule.getInjector().getInstance(GenericParser.class);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class UserResourceTest {
                 param("userId", 301).
                 expect().
                 statusCode(200).
-                body("id", Matchers.is("301")).
+                body("id", Matchers.is(301)).
                 body("name", Matchers.is("Tomek")).
                 body("email", Matchers.is("tomasz.morcinek@pl")).
                 when().
@@ -98,7 +98,7 @@ public class UserResourceTest {
         given().
                 expect().
                 statusCode(200).
-                body("id", Matchers.is("301")).
+                body("id", Matchers.is(301)).
                 body("name", Matchers.is("Tomek")).
                 body("email", Matchers.is("tomasz.morcinek@pl")).
                 when().
@@ -165,7 +165,7 @@ public class UserResourceTest {
         expect().
                 body("email",Matchers.is("mala@karolina.pl")).
                 body("name",Matchers.is("Milton Friedman")).
-                body("id",Matchers.is("304")).
+                body("id",Matchers.is(304)).
                 statusCode(200).
         when().
                 get("/user/email");

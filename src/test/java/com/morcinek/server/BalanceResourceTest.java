@@ -22,7 +22,7 @@ import static com.jayway.restassured.RestAssured.given;
 public class BalanceResourceTest {
 
     @ClassRule
-    public static ServerRule serverRule = new ServerRule(8080, "/api");
+    public static ServerRule serverRule = new ServerRule(8080, "/test/api");
 
     private static GenericParser genericParser = new GenericParser();
 
@@ -32,16 +32,12 @@ public class BalanceResourceTest {
 
     @BeforeClass
     public static void before() {
-        RestAssured.baseURI = "http://localhost:8080/api";
-    }
-
-    @BeforeClass
-    public static void injectFields() {
-        entityManager = serverRule.getInjector().getInstance(EntityManager.class);
+        RestAssured.baseURI = "http://localhost:8080/test/api";
     }
 
     @BeforeClass
     public static void initAccount() {
+        entityManager = serverRule.getInjector().getInstance(EntityManager.class);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         User user = ModelFactory.createUser(entityManager, 101, "marek", "marciasan@morcinek.com");
@@ -60,7 +56,7 @@ public class BalanceResourceTest {
         given().
                 param("accountId", accountId).
                 expect().
-                body("balance", Matchers.is("236.78")).
+                body("balance", Matchers.equalTo(236.78f)).
                 statusCode(200).
                 when().
                 get("/balance/total");

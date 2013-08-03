@@ -1,10 +1,9 @@
 package com.morcinek.server.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.*;
 
 /**
@@ -16,7 +15,6 @@ import java.util.*;
  */
 @Entity
 @XmlRootElement
-@XmlAccessorType(value = XmlAccessType.FIELD)
 public class Account {
 
     @Id
@@ -30,18 +28,18 @@ public class Account {
     private String description;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date startDate;
+    private Calendar startDate;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private Set<User> users = new HashSet<User>();
 
-    @XmlTransient
+    @JsonIgnore
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Record> records = new ArrayList<Record>();
 
     @PrePersist
     public void updateStartDate() {
-        this.startDate = new Date();
+        this.startDate = Calendar.getInstance();
     }
 
     public void setId(Long id) {

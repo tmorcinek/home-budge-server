@@ -1,8 +1,9 @@
 package com.morcinek.server.model;
 
-import javax.xml.bind.annotation.*;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -13,7 +14,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 @XmlRootElement
-@XmlAccessorType(value = XmlAccessType.FIELD)
 public class TestRecord {
 
     private Long id;
@@ -28,7 +28,7 @@ public class TestRecord {
 
     private Double amount;
 
-    @XmlTransient
+    @JsonIgnore
     private TestAccount account;
 
     private List<TestUser> users = new ArrayList<TestUser>();

@@ -7,9 +7,7 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,30 +16,27 @@ import java.util.List;
  * Time: 1:26 AM
  * To change this template use File | Settings | File Templates.
  */
-@Path("/author")
+@Path("/service")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
-public class AuthorResource {
+public class ApplicationResource {
 
     private List<Author> authors = new ArrayList<Author>();
 
-    public AuthorResource() {
-        authors.add(new Author("Tomasz", "Morcinek", "tomasz.morcinek@gmail.com", "tmorcinek.wordpress.com"));
+    public ApplicationResource() {
+        authors.add(new Author("Tomaszmau", "Morcinek", "tomasz.morcinek@gmail.com", "tmorcinek.wordpress.com"));
     }
 
     @GET
+    @Path("/authors")
     public Response getAuthors() {
         return Response.status(Response.Status.OK).entity(authors).build();
     }
 
     @GET
-    @Path("{id}")
-    public Response getAuthor(@PathParam("id") int id) {
-        try {
-            return Response.status(Response.Status.OK).entity(authors.get(id - 1)).build();
-        } catch (IndexOutOfBoundsException e) {
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
+    @Path("/date")
+    public Response getSystemDate() {
+        return Response.status(Response.Status.OK).entity(Calendar.getInstance()).build();
     }
 
 }

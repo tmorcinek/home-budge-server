@@ -1,10 +1,9 @@
 package com.morcinek.server.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +16,6 @@ import java.util.List;
  */
 @Entity
 @XmlRootElement
-@XmlAccessorType(value = XmlAccessType.FIELD)
 public class User {
 
     @Id
@@ -27,7 +25,7 @@ public class User {
 
     private String name;
 
-    @XmlTransient
+    @JsonIgnore
     @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Account> accounts;
 
