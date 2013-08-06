@@ -22,10 +22,10 @@ public class Record {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(optional = false)
     private User creator;
 
-    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(optional = false)
     private User payer;
 
     @Temporal(TemporalType.TIMESTAMP)

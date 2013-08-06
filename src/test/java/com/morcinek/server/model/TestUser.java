@@ -28,6 +28,10 @@ public class TestUser {
     public TestUser() {
     }
 
+    public TestUser(Long id) {
+        this.id = id;
+    }
+
     public TestUser(Long id, String email, String name) {
         this.id = id;
         this.email = email;

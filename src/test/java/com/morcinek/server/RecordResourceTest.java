@@ -5,10 +5,9 @@ import com.jayway.restassured.http.ContentType;
 import com.morcinek.server.model.*;
 import com.morcinek.server.webservice.util.SessionManager;
 import com.morcinek.server.webservice.util.network.FakeWebGateway;
+import org.fest.assertions.Assertions;
 import org.hamcrest.Matchers;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -47,6 +46,24 @@ public class RecordResourceTest {
         recordId = ModelFactory.createRecord(entityManager, account, 213.22, "zakupy", user, user, user).getId();
         recordId2 = ModelFactory.createRecord(entityManager, account, 490.12, "przekupy", "short description",user, user, user).getId();
         tx.commit();
+    }
+
+    @AfterClass
+    public static void  tearDown() throws Exception {
+        // assert not changed fields
+        User user = entityManager.find(User.class, 29L);
+        Assertions.assertThat(user.getEmail()).isEqualTo("tomk1@morcinek.com");
+        Assertions.assertThat(user.getName()).isEqualTo("tomek");
+        User user2 = entityManager.find(User.class, 30L);
+        Assertions.assertThat(user2.getEmail()).isEqualTo("marek@major.com");
+        Assertions.assertThat(user2.getName()).isEqualTo("marek");
+
+        Account account = entityManager.find(Account.class, accountId);
+        Assertions.assertThat(account.getName()).isEqualTo("Limanowskiego211");
+        Assertions.assertThat(account.getUsers()).hasSize(1);
+        User actual = account.getUsers().toArray(new User[0])[0];
+        Assertions.assertThat(actual).isEqualTo(user);
+
     }
 
     @Test
@@ -189,7 +206,7 @@ public class RecordResourceTest {
         record.setTitle("new title");
         record.setDescription("longer description");
         record.setAmount(1999.99);
-        record.getUsers().add(new TestUser(30L,null,null));
+        record.getUsers().add(new TestUser(30L, null, null));
         given().
                 header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
                 contentType(ContentType.JSON).
@@ -200,6 +217,23 @@ public class RecordResourceTest {
                 body("description", Matchers.equalTo("longer description")).
                 body("amount", Matchers.equalTo(1999.99f)).
                 body("users[0].id", Matchers.equalTo(30)).
+                when().
+                put("accounts/" + accountId + "/records/" + recordId2);
+    }
+
+    @Test
+    public void updateRecordTestPayer() {
+        sessionManager.validateToken("29");
+
+        TestRecord record = new TestRecord();
+        record.setPayer(new TestUser(30L));
+        given().
+                header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
+                contentType(ContentType.JSON).
+                body(record).
+                expect().
+                statusCode(200).
+                body("payer.id", Matchers.equalTo(30)).
                 when().
                 put("accounts/" + accountId + "/records/" + recordId2);
     }
