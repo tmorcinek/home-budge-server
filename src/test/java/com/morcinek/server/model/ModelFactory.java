@@ -34,10 +34,15 @@ public class ModelFactory {
 
 
     public static Record createRecord(EntityManager entityManager, Account account, double ammount, String title, User creator, User payer, User... users) {
+        return createRecord(entityManager, account, ammount, title, null, creator, payer, users);
+    }
+
+    public static Record createRecord(EntityManager entityManager, Account account, double ammount, String title, String description, User creator, User payer, User... users) {
         Record record = new Record();
         record.setAccount(account);
         record.setAmount(ammount);
         record.setTitle(title);
+        record.setDescription(description);
         record.setCreator(creator);
         record.setPayer(payer);
         record.setUsers(Arrays.asList(users));

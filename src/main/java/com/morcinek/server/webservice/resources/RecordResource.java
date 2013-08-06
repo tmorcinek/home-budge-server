@@ -24,7 +24,7 @@ import java.util.List;
  * Time: 9:56 PM
  * To change this template use File | Settings | File Templates.
  */
-@Path("/record")
+@Path("/accounts")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
 public class RecordResource {
@@ -36,31 +36,23 @@ public class RecordResource {
     private SessionManager sessionManager;
 
     @GET
-    @Path("{recordId}")
-    public Response getRecord(@PathParam("recordId") long recordId) {
-        Record record = entityManager.find(Record.class, recordId);
-        return ResponseFactory.createOkResponse(record);
-    }
-
-    @GET
-    public Response getRecords(@QueryParam("accountId") long accountId) {
+    @Path("{accountId}/records")
+    public Response getRecords(@PathParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
         entityManager.refresh(account);
         return ResponseFactory.createOkResponse(account.getRecords());
     }
 
-    @PUT
-    public Response createRecord(@Context HttpServletRequest request, @QueryParam("accountId") long accountId, Record record) {
+    @POST
+    @Path("{accountId}/records")
+    public Response createRecord(@Context HttpServletRequest request, @PathParam("accountId") long accountId, Record record) {
         Account account = entityManager.find(Account.class, accountId);
-        account.addRecord(record);
         long userId = sessionManager.getUserIdFromRequest(request);
-        record.setCreator(entityManager.find(User.class, userId));
-        record.setPayer(entityManager.find(User.class, record.getPayer().getId()));
-        List<User> users = new ArrayList<User>();
-        for (User user : record.getUsers()) {
-            users.add(entityManager.find(User.class, user.getId()));
+        if (!validatePermision(userId, account)) {
+            return ResponseFactory.createUnauthorizedResponse("Validation Error", "User cannot create record for this account.");
         }
-        record.setUsers(users);
+        account.addRecord(record);
+        record.setCreator(new User(userId));
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         try {
@@ -70,29 +62,49 @@ public class RecordResource {
             e.printStackTrace();
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
+        entityManager.refresh(record);
         return ResponseFactory.createCreatedResponse(record);
     }
 
-    @POST
-    public Response updateRecord(@Context HttpServletRequest request, Record updatedRecord) {
+    private boolean validatePermision(long userId, Account account) {
+        for (User user : account.getUsers()) {
+            if (user.getId() == userId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @PUT
+    @Path("{accountId}/records/{recordId}")
+    public Response updateRecord(@Context HttpServletRequest request, @PathParam("accountId") long accountId, @PathParam("recordId") long recordId, Record updatedRecord) {
         Record record;
         try {
-            validateRecord(updatedRecord);
-            record = entityManager.find(Record.class, updatedRecord.getId());
-            // updating creator to show who updated this record
+            record = entityManager.find(Record.class, recordId);
+            if (record == null) {
+                return ResponseFactory.createBadRequestResponse("Validation Error", "No record with such id.");
+            }
+            if (record.getAccount().getId() != accountId) {
+                return ResponseFactory.createBadRequestResponse("Validation Error", "Record does not exist in given account.");
+            }
             long userId = sessionManager.getUserIdFromRequest(request);
+            if (!validatePermision(userId, record.getAccount())) {
+                return ResponseFactory.createUnauthorizedResponse("Validation Error", "User cannot create record for this account.");
+            }
+
+            // updating creator to show who updated this record
             record.setCreator(entityManager.find(User.class, userId));
 
             updateRecord(updatedRecord, record);
             EntityTransaction tx = entityManager.getTransaction();
             tx.begin();
             entityManager.merge(record);
-            entityManager.refresh(record);
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
+        entityManager.refresh(record);
         return ResponseFactory.createOkResponse(record);
     }
 
@@ -106,18 +118,11 @@ public class RecordResource {
         if (updatedRecord.getAmount() != null) {
             record.setAmount(updatedRecord.getAmount());
         }
-//        if (updatedRecord.getUsers() != null && !updatedRecord.getUsers().isEmpty()){
-//            List<User> users = new ArrayList<User>();
-//            for (User user : updatedRecord.getUsers()) {
-//                users.add(entityManager.find(User.class, user.getId()));
-//            }
-//            record.setUsers(users);
-//        }
-    }
-
-    private void validateRecord(Record record) throws DataValidationException {
-        if (record.getId() == null) {
-            throw new DataValidationException("Missing record id.");
+        if (updatedRecord.getPayer() != null) {
+            record.setPayer(updatedRecord.getPayer());
+        }
+        if (updatedRecord.getUsers() != null && !updatedRecord.getUsers().isEmpty()) {
+            record.setUsers(updatedRecord.getUsers());
         }
     }
 

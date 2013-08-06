@@ -22,10 +22,10 @@ public class Record {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
     private User creator;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
     private User payer;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,10 +43,10 @@ public class Record {
     private Double amount;
 
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE, optional = false, fetch = FetchType.LAZY)
     private Account account;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany()
     private List<User> users;
 
     @PreUpdate

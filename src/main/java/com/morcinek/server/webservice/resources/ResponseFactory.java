@@ -9,7 +9,6 @@ import javax.ws.rs.core.Response;
  * User: Tomasz Morcinek
  * Date: 6/3/13
  * Time: 12:49 PM
- * To change this template use File | Settings | File Templates.
  */
 public class ResponseFactory {
 
@@ -25,9 +24,16 @@ public class ResponseFactory {
         return Response.status(Response.Status.BAD_REQUEST).entity(new WebserviceError(message)).build();
     }
 
+    public static Response createBadRequestResponse(String title, String message) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(new WebserviceError(title, message)).build();
+    }
+
     public static Response createForbiddenResponse(String message) {
         return Response.status(Response.Status.FORBIDDEN).entity(new WebserviceError(message)).build();
     }
 
+    public static Response createUnauthorizedResponse(String title, String message) {
+        return Response.status(Response.Status.UNAUTHORIZED).entity(new WebserviceError(title, message)).build();
+    }
 
 }

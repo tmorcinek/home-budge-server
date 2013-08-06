@@ -17,12 +17,19 @@ public class WebserviceError {
 
     private Integer errorCode;
 
+    private String errorTitle;
+
     private String errorMessage;
 
     public WebserviceError() {
     }
 
     public WebserviceError(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public WebserviceError(String errorTitle, String errorMessage) {
+        this.errorTitle = errorTitle;
         this.errorMessage = errorMessage;
     }
 }
