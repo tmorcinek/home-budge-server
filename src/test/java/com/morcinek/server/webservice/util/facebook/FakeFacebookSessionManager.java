@@ -17,15 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 @Singleton
 public class FakeFacebookSessionManager implements SessionManager {
 
-    private final UserManager userManager;
-
-    private long userId = -9L;
-
-    @Inject
-    public FakeFacebookSessionManager(UserManager userManager) throws Exception {
-        this.userManager = userManager;
-        userManager.createUserIfNotExist(-9L);
-    }
+    private long userId;
 
     @Override
     public boolean validateToken(String accessToken) {

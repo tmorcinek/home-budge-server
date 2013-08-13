@@ -1,9 +1,10 @@
 package com.morcinek.server.webservice.resources;
 
 import com.google.inject.Inject;
+import com.morcinek.server.database.RecordManager;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.User;
-import com.morcinek.server.webservice.exceptions.DataValidationException;
+import com.morcinek.server.webservice.util.PermissionManager;
 import com.morcinek.server.webservice.util.SessionManager;
 
 import javax.persistence.EntityManager;
@@ -15,16 +16,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
  * User: Tomasz Morcinek
  * Date: 2/21/13
  * Time: 1:26 AM
- * To change this template use File | Settings | File Templates.
  */
-@Path("/account")
+@Path("/accounts")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
 public class AccountResource {
@@ -35,10 +34,19 @@ public class AccountResource {
     @Inject
     private SessionManager sessionManager;
 
+    @Inject
+    private PermissionManager permissionManager;
+
+    @Inject
+    private RecordManager recordManager;
+
     @GET
     @Path("{accountId}")
     public Response getAccount(@Context HttpServletRequest request, @PathParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
+        if (!permissionManager.validatePermision(sessionManager.getUserIdFromRequest(request), account)) {
+            return ResponseFactory.createUnauthorizedResponse("Authorization Error", "User do not own this account.");
+        }
         entityManager.refresh(account);
         return ResponseFactory.createOkResponse(account);
     }
@@ -55,21 +63,16 @@ public class AccountResource {
         return ResponseFactory.createOkResponse(accounts);
     }
 
-    @PUT
-    @Path("/create")
+    @POST
     public Response createAccount(@Context HttpServletRequest request, Account account) {
         long userId = sessionManager.getUserIdFromRequest(request);
-        return createAccount(userId, account);
-    }
-
-    @PUT
-    public Response createAccount(@QueryParam("userId") long userId, Account account) {
+        if (!validateAccount(account)) {
+            return ResponseFactory.createForbiddenResponse("Validation Error", "Account name cannot be empty.");
+        }
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
         try {
-            validateAccount(account);
-            EntityTransaction tx = entityManager.getTransaction();
-            tx.begin();
-            User admin = entityManager.find(User.class, userId);
-            account.addUser(admin);
+            account.addUser(new User(userId));
             entityManager.persist(account);
             tx.commit();
         } catch (Exception e) {
@@ -79,32 +82,16 @@ public class AccountResource {
         return ResponseFactory.createCreatedResponse(account);
     }
 
-    private void validateAccount(Account account) throws DataValidationException {
+    private boolean validateAccount(Account account) {
         if (account.getName() == null || account.getName().trim().equals("")) {
-            throw new DataValidationException("Account name is invalid.");
+            return false;
         }
+        return true;
     }
 
-
-    @POST
-    public Response addUserToAccount(@QueryParam("accountId") long accountId, @QueryParam("userId") long userId) {
-        Account account = entityManager.find(Account.class, accountId);
-        User user = entityManager.find(User.class, userId);
-        EntityTransaction tx = entityManager.getTransaction();
-        tx.begin();
-        try {
-            account.addUser(user);
-            entityManager.merge(account);
-            tx.commit();
-        } catch (Exception e) {
-            return ResponseFactory.createBadRequestResponse(e.getMessage());
-        }
-        return ResponseFactory.createOkResponse(account);
-    }
-
-    @POST
-    @Path("/users")
-    public Response addUserToAccount(@QueryParam("accountId") long accountId, List<User> users) {
+    @PUT
+    @Path("{accountId}/users")
+    public Response addUsersToAccount(@PathParam("accountId") long accountId, List<User> users) {
         Account account = entityManager.find(Account.class, accountId);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
@@ -115,14 +102,21 @@ public class AccountResource {
         } catch (Exception e) {
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
+        entityManager.refresh(account);
         return ResponseFactory.createOkResponse(account);
     }
 
     @DELETE
-    public Response removeUserFromAccount(@QueryParam("userId") long userId, @QueryParam("accountId") long accountId) {
-        // FIXME add validation to block deleting user with records.
+    @Path("{accountId}/users/{userId}")
+    public Response removeUserFromAccount(@Context HttpServletRequest request, @PathParam("accountId") long accountId, @PathParam("userId") long userId) {
         Account account = entityManager.find(Account.class, accountId);
+        if (!permissionManager.validatePermision(sessionManager.getUserIdFromRequest(request), account)) {
+            return ResponseFactory.createUnauthorizedResponse("Authorization Error", "User cannot create record for this account.");
+        }
         User user = entityManager.find(User.class, userId);
+        if (!recordManager.getRecordsForUserFromAccount(account, userId).isEmpty()) {
+            return ResponseFactory.createForbiddenResponse("Validation Error", "User cannot be removed, due to financial involvement.");
+        }
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         try {
@@ -132,8 +126,8 @@ public class AccountResource {
         } catch (Exception e) {
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
+        entityManager.refresh(account);
         return ResponseFactory.createOkResponse(account);
     }
-
 
 }

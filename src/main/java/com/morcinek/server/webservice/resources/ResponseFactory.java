@@ -28,6 +28,10 @@ public class ResponseFactory {
         return Response.status(Response.Status.BAD_REQUEST).entity(new WebserviceError(title, message)).build();
     }
 
+    public static Response createForbiddenResponse(String title, String message) {
+        return Response.status(Response.Status.FORBIDDEN).entity(new WebserviceError(title, message)).build();
+    }
+
     public static Response createForbiddenResponse(String message) {
         return Response.status(Response.Status.FORBIDDEN).entity(new WebserviceError(message)).build();
     }

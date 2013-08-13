@@ -15,7 +15,6 @@ import javax.persistence.Persistence;
  * User: Tomasz Morcinek
  * Date: 4/5/13
  * Time: 1:54 PM
- * To change this template use File | Settings | File Templates.
  */
 public class CoreTestModule extends AbstractModule {
 
@@ -25,6 +24,7 @@ public class CoreTestModule extends AbstractModule {
         bind(EntityManager.class).toInstance(factory.createEntityManager());
         bind(WebGatewayInterface.class).to(FakeWebGateway.class);
         overrideBindings();
+
     }
 
     protected void overrideBindings() {

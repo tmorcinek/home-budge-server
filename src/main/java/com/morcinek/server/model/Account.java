@@ -30,11 +30,11 @@ public class Account {
     @Temporal(TemporalType.TIMESTAMP)
     private Date startDate;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<User>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<Record> records = new ArrayList<Record>();
 
     @PrePersist

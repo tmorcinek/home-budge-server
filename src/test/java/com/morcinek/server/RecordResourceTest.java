@@ -7,12 +7,13 @@ import com.morcinek.server.webservice.util.SessionManager;
 import com.morcinek.server.webservice.util.network.FakeWebGateway;
 import org.fest.assertions.Assertions;
 import org.hamcrest.Matchers;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-
-import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -39,12 +40,14 @@ public class RecordResourceTest {
         entityManager = serverRule.getInjector().getInstance(EntityManager.class);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
+
         User user = ModelFactory.createUser(entityManager, 29, "tomek", "tomk1@morcinek.com");
         ModelFactory.createUser(entityManager, 30, "marek", "marek@major.com").getId();
         Account account = ModelFactory.createAccount(entityManager, "Limanowskiego211", user);
         accountId = account.getId();
         recordId = ModelFactory.createRecord(entityManager, account, 213.22, "zakupy", user, user, user).getId();
         recordId2 = ModelFactory.createRecord(entityManager, account, 490.12, "przekupy", "short description",user, user, user).getId();
+
         tx.commit();
     }
 
@@ -73,7 +76,7 @@ public class RecordResourceTest {
                 expect().
                 statusCode(200).
                 when().
-                get("accounts/" + accountId + "/records").asString();
+                get("records/accounts/" + accountId + "/records").asString();
         System.out.println(accountId1);
     }
 
@@ -95,7 +98,7 @@ public class RecordResourceTest {
                 body("title", Matchers.equalTo("pierdoly do domu")).
                 body("amount", Matchers.equalTo(513.78f)).
                 when().
-                post("accounts/" + accountId + "/records");
+                post("records/accounts/" + accountId + "/records");
     }
 
     @Test
@@ -110,10 +113,10 @@ public class RecordResourceTest {
                 body(record).
                 expect().
                 statusCode(401).
-                body("errorTitle", Matchers.equalTo("Validation Error")).
+                body("errorTitle", Matchers.equalTo("Authorization Error")).
                 body("errorMessage", Matchers.equalTo("User cannot create record for this account.")).
                 when().
-                post("accounts/" + accountId + "/records").asString();
+                post("records/accounts/" + accountId + "/records").asString();
     }
 
     @Test
@@ -130,10 +133,10 @@ public class RecordResourceTest {
                 body(record).
                 expect().
                 statusCode(401).
-                body("errorTitle", Matchers.equalTo("Validation Error")).
+                body("errorTitle", Matchers.equalTo("Authorization Error")).
                 body("errorMessage", Matchers.equalTo("User cannot create record for this account.")).
                 when().
-                put("accounts/" + accountId + "/records/" + recordId);
+                put("records/accounts/" + accountId + "/records/" + recordId);
     }
 
     @Test
@@ -149,11 +152,11 @@ public class RecordResourceTest {
                 contentType(ContentType.JSON).
                 body(record).
                 expect().
-                statusCode(400).
+                statusCode(403).
                 body("errorTitle", Matchers.equalTo("Validation Error")).
                 body("errorMessage", Matchers.equalTo("No record with such id.")).
                 when().
-                put("accounts/" + accountId + "/records/" + 12323);
+                put("records/accounts/" + accountId + "/records/" + 12323);
     }
 
     @Test
@@ -169,11 +172,11 @@ public class RecordResourceTest {
                 contentType(ContentType.JSON).
                 body(record).
                 expect().
-                statusCode(400).
+                statusCode(403).
                 body("errorTitle", Matchers.equalTo("Validation Error")).
                 body("errorMessage", Matchers.equalTo("Record does not exist in given account.")).
                 when().
-                put("accounts/" + 123 + "/records/" + recordId);
+                put("records/accounts/" + 123 + "/records/" + recordId);
     }
 
     @Test
@@ -195,7 +198,7 @@ public class RecordResourceTest {
                 body("description", Matchers.equalTo("description")).
                 body("amount", Matchers.equalTo(1999.99f)).
                 when().
-                put("accounts/" + accountId + "/records/" + recordId);
+                put("records/accounts/" + accountId + "/records/" + recordId);
     }
 
     @Test
@@ -206,7 +209,7 @@ public class RecordResourceTest {
         record.setTitle("new title");
         record.setDescription("longer description");
         record.setAmount(1999.99);
-        record.getUsers().add(new TestUser(30L, null, null));
+        record.getUsers().add(new TestUser(30L));
         given().
                 header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
                 contentType(ContentType.JSON).
@@ -218,7 +221,7 @@ public class RecordResourceTest {
                 body("amount", Matchers.equalTo(1999.99f)).
                 body("users[0].id", Matchers.equalTo(30)).
                 when().
-                put("accounts/" + accountId + "/records/" + recordId2);
+                put("records/accounts/" + accountId + "/records/" + recordId2);
     }
 
     @Test
@@ -235,7 +238,7 @@ public class RecordResourceTest {
                 statusCode(200).
                 body("payer.id", Matchers.equalTo(30)).
                 when().
-                put("accounts/" + accountId + "/records/" + recordId2);
+                put("records/accounts/" + accountId + "/records/" + recordId2);
     }
 
 }
