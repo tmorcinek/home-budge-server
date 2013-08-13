@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +23,7 @@ public class AccountResourceTest {
     public static ServerRule serverRule = new ServerRule(8080, "/test/api");
     private static Long accountId;
     private static Long accountId2;
+    private static Long accountId3;
 
     private static EntityManager entityManager;
     private static SessionManager sessionManager;
@@ -52,6 +52,7 @@ public class AccountResourceTest {
         ModelFactory.createRecord(entityManager, account, 23.0, "Obiad", maciek, maciek, maciek, tola);
         ModelFactory.createRecord(entityManager, account, 25.0, "Pranie", tola, tola, maciek);
 
+        accountId3 = ModelFactory.createAccount(entityManager, "Todelete Account", skapiec).getId();
         tx.commit();
     }
 
@@ -183,6 +184,43 @@ public class AccountResourceTest {
                 statusCode(200).
                 when().
                 delete("/accounts/" + accountId2 + "/users/6");
+    }
+
+    @Test
+    public void removeAccountValidationError() {
+        sessionManager.validateToken("4");
+
+        given().
+                expect().
+                statusCode(403).
+                body("errorTitle", Matchers.equalTo("Validation Error")).
+                body("errorMessage", Matchers.equalTo("Account cannot be deleted.")).
+                when().
+                delete("/accounts/" + accountId2);
+    }
+
+    @Test
+    public void removeAccountUnauthorized() {
+        sessionManager.validateToken("1");
+
+        given().
+                expect().
+                statusCode(401).
+                body("errorTitle", Matchers.equalTo("Authorization Error")).
+                body("errorMessage", Matchers.equalTo("User cannot delete account.")).
+                when().
+                delete("/accounts/" + accountId2);
+    }
+
+    @Test
+    public void removeAccount() {
+        sessionManager.validateToken("6");
+
+        given().
+                expect().
+                statusCode(200).
+                when().
+                delete("/accounts/" + accountId3);
     }
 
 }

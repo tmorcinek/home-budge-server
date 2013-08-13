@@ -89,6 +89,28 @@ public class AccountResource {
         return true;
     }
 
+    @DELETE
+    @Path("{accountId}")
+    public Response createAccount(@Context HttpServletRequest request, @PathParam("accountId") long accountId) {
+        Account account = entityManager.find(Account.class, accountId);
+        if (!permissionManager.validatePermision(sessionManager.getUserIdFromRequest(request), account)) {
+            return ResponseFactory.createUnauthorizedResponse("Authorization Error", "User cannot delete account.");
+        }
+        entityManager.refresh(account);
+        if (!account.getRecords().isEmpty()) {
+            return ResponseFactory.createForbiddenResponse("Validation Error", "Account cannot be deleted.");
+        }
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
+        try {
+            entityManager.remove(account);
+            tx.commit();
+        } catch (Exception e) {
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
+        }
+        return ResponseFactory.createOkResponse(null);
+    }
+
     @PUT
     @Path("{accountId}/users")
     public Response addUsersToAccount(@PathParam("accountId") long accountId, List<User> users) {
