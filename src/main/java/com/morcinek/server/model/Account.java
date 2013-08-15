@@ -80,4 +80,8 @@ public class Account {
     public String getDescription() {
         return description;
     }
+
+    public Date getStartDate() {
+        return startDate;
+    }
 }

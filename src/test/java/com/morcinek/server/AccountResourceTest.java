@@ -66,6 +66,7 @@ public class AccountResourceTest {
                 expect().
                 statusCode(200).
                 body("name", Matchers.is("Limanowskiego211")).
+                body("startDate", Matchers.notNullValue()).
                 body("users[0].name", Matchers.is("tomek")).
                 body("users[0].email", Matchers.is("tomk@morcinek.com")).
                 when().
@@ -100,6 +101,7 @@ public class AccountResourceTest {
                 body(account).
                 expect().
                 statusCode(201).
+                body("startDate", Matchers.notNullValue()).
                 when().
                 post("/accounts");
 
