@@ -24,6 +24,7 @@ public class AccountResourceTest {
     private static Long accountId;
     private static Long accountId2;
     private static Long accountId3;
+    private static Long accountId4;
 
     private static EntityManager entityManager;
     private static SessionManager sessionManager;
@@ -39,26 +40,27 @@ public class AccountResourceTest {
         sessionManager = serverRule.getInjector().getInstance(SessionManager.class);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
-        User user = ModelFactory.createUser(entityManager, 1, "tomek", "tomk@morcinek.com");
+        User user = ModelFactory.createUser(entityManager, 111, "tomek", "tomk@morcinek.com");
         accountId = ModelFactory.createAccount(entityManager, "Limanowskiego211", user).getId();
-        ModelFactory.createUser(entityManager, 2, "marcin", "marcin@ogorek.com");
-        ModelFactory.createUser(entityManager, 3, "klara", "takitam@costam.com");
+        ModelFactory.createUser(entityManager, 112, "marcin", "marcin@ogorek.com");
+        ModelFactory.createUser(entityManager, 113, "klara", "takitam@costam.com");
 
-        User maciek = ModelFactory.createUser(entityManager, 4, "maciek", "takitam@costam.com");
-        User tola = ModelFactory.createUser(entityManager, 5, "tola", "banan@banan.com");
-        User skapiec = ModelFactory.createUser(entityManager, 6, "skapiec", "skapiec@nowy.com");
+        User maciek = ModelFactory.createUser(entityManager, 114, "maciek", "takitam@costam.com");
+        User tola = ModelFactory.createUser(entityManager, 115, "tola", "banan@banan.com");
+        User skapiec = ModelFactory.createUser(entityManager, 116, "skapiec", "skapiec@nowy.com");
         Account account = ModelFactory.createAccount(entityManager, "Name", maciek, tola, skapiec);
         accountId2 = account.getId();
         ModelFactory.createRecord(entityManager, account, 23.0, "Obiad", maciek, maciek, maciek, tola);
         ModelFactory.createRecord(entityManager, account, 25.0, "Pranie", tola, tola, maciek);
 
         accountId3 = ModelFactory.createAccount(entityManager, "Todelete Account", skapiec).getId();
+        accountId4 = ModelFactory.createAccount(entityManager, "Account with simple user", skapiec).getId();
         tx.commit();
     }
 
     @Test
     public void getAccountTest() {
-        sessionManager.validateToken("1");
+        sessionManager.validateToken("111");
 
         given().
                 expect().
@@ -72,7 +74,7 @@ public class AccountResourceTest {
 
     @Test
     public void getAccountTestAuthorizationError() {
-        sessionManager.validateToken("2");
+        sessionManager.validateToken("112");
 
         given().
                 expect().
@@ -85,11 +87,11 @@ public class AccountResourceTest {
 
     @Test
     public void createAccountTest() {
-        sessionManager.validateToken("1");
+        sessionManager.validateToken("111");
 
         TestAccount account = new TestAccount();
-        TestUser user = new TestUser(3L);
-        TestUser user2 = new TestUser(1L);
+        TestUser user = new TestUser(113L);
+        TestUser user2 = new TestUser(111L);
         account.addUser(user);
         account.addUser(user2);
         account.setName("Kawalerii 8");
@@ -102,7 +104,7 @@ public class AccountResourceTest {
                 post("/accounts");
 
         // then
-        User user3 = entityManager.find(User.class, 3L);
+        User user3 = entityManager.find(User.class, 113L);
         entityManager.refresh(user3);
         Assertions.assertThat(user3.getAccounts()).isNotNull().hasSize(1);
         Assertions.assertThat(user3.getAccounts().get(0).getName()).isEqualTo("Kawalerii 8");
@@ -111,11 +113,11 @@ public class AccountResourceTest {
 
     @Test
     public void createAccountTestValidationError() {
-        sessionManager.validateToken("1");
+        sessionManager.validateToken("111");
 
         TestAccount account = new TestAccount();
-        TestUser user = new TestUser(3L);
-        TestUser user2 = new TestUser(1L);
+        TestUser user = new TestUser(113L);
+        TestUser user2 = new TestUser(111L);
         account.addUser(user);
         account.addUser(user2);
         given().
@@ -129,7 +131,7 @@ public class AccountResourceTest {
                 post("/accounts");
 
         // then
-        User user3 = entityManager.find(User.class, 3L);
+        User user3 = entityManager.find(User.class, 113L);
         entityManager.refresh(user3);
         Assertions.assertThat(user3.getAccounts()).isNotNull().hasSize(1);
         Assertions.assertThat(user3.getAccounts().get(0).getName()).isEqualTo("Kawalerii 8");
@@ -139,7 +141,7 @@ public class AccountResourceTest {
     @Test
     public void addUsersToAccountTest() {
         List<TestUser> users = new ArrayList<>();
-        users.add(new TestUser(1L));
+        users.add(new TestUser(111L));
         given().
                 contentType(ContentType.JSON).
                 body(users).
@@ -151,7 +153,7 @@ public class AccountResourceTest {
 
     @Test
     public void removeUserToAccountTestUnauthorized() {
-        sessionManager.validateToken("4");
+        sessionManager.validateToken("114");
 
         given().
                 expect().
@@ -164,7 +166,7 @@ public class AccountResourceTest {
 
     @Test
     public void removeUserToAccountTestValidationError() {
-        sessionManager.validateToken("4");
+        sessionManager.validateToken("114");
 
         given().
                 expect().
@@ -172,23 +174,23 @@ public class AccountResourceTest {
                 body("errorTitle", Matchers.equalTo("Validation Error")).
                 body("errorMessage", Matchers.equalTo("User cannot be removed, due to financial involvement.")).
                 when().
-                delete("/accounts/" + accountId2 + "/users/4");
+                delete("/accounts/" + accountId2 + "/users/114");
     }
 
     @Test
     public void removeUserToAccountTest() {
-        sessionManager.validateToken("4");
+        sessionManager.validateToken("114");
 
         given().
                 expect().
                 statusCode(200).
                 when().
-                delete("/accounts/" + accountId2 + "/users/6");
+                delete("/accounts/" + accountId2 + "/users/116");
     }
 
     @Test
     public void removeAccountValidationError() {
-        sessionManager.validateToken("4");
+        sessionManager.validateToken("114");
 
         given().
                 expect().
@@ -201,7 +203,7 @@ public class AccountResourceTest {
 
     @Test
     public void removeAccountUnauthorized() {
-        sessionManager.validateToken("1");
+        sessionManager.validateToken("111");
 
         given().
                 expect().
@@ -214,7 +216,7 @@ public class AccountResourceTest {
 
     @Test
     public void removeAccount() {
-        sessionManager.validateToken("6");
+        sessionManager.validateToken("116");
 
         given().
                 expect().
@@ -223,4 +225,47 @@ public class AccountResourceTest {
                 delete("/accounts/" + accountId3);
     }
 
+    @Test
+    public void addSimpleUserToAccountTest() {
+        TestUser user = new TestUser(null, "Tomek@tomek", "Romek");
+        given().
+                contentType(ContentType.JSON).
+                body(user).
+                expect().
+                statusCode(201).
+                when().
+                put("/accounts/" + accountId + "/users/simple");
+    }
+
+    @Test
+    public void removeAccountWithSimpleUser() {
+        sessionManager.validateToken("116");
+
+        TestUser user = new TestUser(null, "Tomek@tomek", "Romek");
+        given().
+                contentType(ContentType.JSON).
+                body(user).
+                expect().
+                statusCode(201).
+                when().
+                put("/accounts/" + accountId4 + "/users/simple");
+
+        Account account = entityManager.find(Account.class, accountId4);
+        User simpleUser = null;
+        for (User accountUser : account.getUsers()) {
+            if(accountUser.getName().equals("Romek")){
+                simpleUser = accountUser;
+            }
+        }
+        Assertions.assertThat(simpleUser).isNotNull();
+
+        given().
+                expect().
+                statusCode(200).
+                when().
+                delete("/accounts/" + accountId4);
+
+        simpleUser = entityManager.find(User.class, simpleUser.getId());
+        Assertions.assertThat(simpleUser).isNull();
+    }
 }

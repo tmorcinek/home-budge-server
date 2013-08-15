@@ -91,7 +91,7 @@ public class AccountResource {
 
     @DELETE
     @Path("{accountId}")
-    public Response createAccount(@Context HttpServletRequest request, @PathParam("accountId") long accountId) {
+    public Response removeAccount(@Context HttpServletRequest request, @PathParam("accountId") long accountId) {
         Account account = entityManager.find(Account.class, accountId);
         if (!permissionManager.validatePermision(sessionManager.getUserIdFromRequest(request), account)) {
             return ResponseFactory.createUnauthorizedResponse("Authorization Error", "User cannot delete account.");
@@ -103,12 +103,21 @@ public class AccountResource {
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         try {
+            removeSimpleUsers(account);
             entityManager.remove(account);
             tx.commit();
         } catch (Exception e) {
             return ResponseFactory.createBadRequestResponse(e.getMessage());
         }
         return ResponseFactory.createOkResponse(null);
+    }
+
+    private void removeSimpleUsers(Account account) {
+        for (User user : account.getUsers()){
+            if(user.getOwner() != null){
+                entityManager.remove(user);
+            }
+        }
     }
 
     @PUT
@@ -126,6 +135,26 @@ public class AccountResource {
         }
         entityManager.refresh(account);
         return ResponseFactory.createOkResponse(account);
+    }
+
+    @PUT
+    @Path("{accountId}/users/simple")
+    public Response addSimpleUserToAccount(@PathParam("accountId") long accountId, User user) {
+        Account account = entityManager.find(Account.class, accountId);
+        try {
+            EntityTransaction tx = entityManager.getTransaction();
+            tx.begin();
+            user.setOwner(account);
+            entityManager.persist(user);
+            entityManager.refresh(account);
+            account.getUsers().add(user);
+            entityManager.merge(account);
+            tx.commit();
+        } catch (Exception e) {
+            return ResponseFactory.createBadRequestResponse(e.getMessage());
+        }
+        entityManager.refresh(account);
+        return ResponseFactory.createCreatedResponse(account);
     }
 
     @DELETE

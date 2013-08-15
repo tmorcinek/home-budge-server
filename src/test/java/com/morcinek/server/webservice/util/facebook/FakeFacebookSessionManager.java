@@ -29,10 +29,13 @@ public class FakeFacebookSessionManager implements SessionManager {
     public boolean validateToken(String accessToken) {
         try {
             userId = Long.parseLong(accessToken);
-            EntityTransaction transaction = entityManager.getTransaction();
-            transaction.begin();
-            entityManager.persist(new User(userId));
-            transaction.commit();
+            User user = entityManager.find(User.class, userId);
+            if (user == null) {
+                EntityTransaction transaction = entityManager.getTransaction();
+                transaction.begin();
+                entityManager.persist(new User(userId));
+                transaction.commit();
+            }
         } catch (NumberFormatException e) {
         } catch (Exception e) {
             e.printStackTrace();

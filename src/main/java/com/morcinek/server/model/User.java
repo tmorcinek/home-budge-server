@@ -34,8 +34,8 @@ public class User {
     private List<Account> accounts;
 
     @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private User creator;
+    @ManyToOne(optional = true)
+    private Account owner;
 
     public User() {
     }
@@ -95,6 +95,14 @@ public class User {
 
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
+    }
+
+    public Account getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Account owner) {
+        this.owner = owner;
     }
 
     @Override
