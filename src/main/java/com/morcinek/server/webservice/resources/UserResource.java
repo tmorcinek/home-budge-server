@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -20,7 +19,7 @@ import java.util.List;
  * Time: 9:56 PM
  * To change this template use File | Settings | File Templates.
  */
-@Path("/user")
+@Path("/users")
 @Produces({MediaType.APPLICATION_JSON})
 @Consumes({MediaType.APPLICATION_JSON})
 public class UserResource {
@@ -34,13 +33,7 @@ public class UserResource {
     @GET
     @Path("{userId}")
     public Response getUserByPathId(@PathParam("userId") long id) {
-        return getUserById(id);
-    }
-
-    @GET
-    public Response getUserById(@QueryParam("userId") long id) {
         User user = userManager.getUser(id);
-
         if (user == null) {
             return ResponseFactory.createBadRequestResponse("There is no user with id = " + id);
         }
@@ -48,8 +41,18 @@ public class UserResource {
     }
 
     @GET
-    @Path("/email")
-    public Response getUserByEmail(@QueryParam("email") String email) {
+    @Path("/search")
+    public Response searchUser(@QueryParam("email") String email, @QueryParam("name") String name) {
+        if (email != null) {
+            return getUserByEmail(email);
+        }
+        if (name != null) {
+            return getUsersByName(name);
+        }
+        return ResponseFactory.createBadRequestResponse("No parameters 'email' or 'name'.");
+    }
+
+    public Response getUserByEmail(String email) {
         User user = userManager.getUserByEmail(email);
         if (user == null) {
             return ResponseFactory.createOkResponse(null);
@@ -57,9 +60,7 @@ public class UserResource {
         return ResponseFactory.createOkResponse(new User(user.getId(), user.getEmail(), user.getName()));
     }
 
-    @GET
-    @Path("/name")
-    public Response getUsersByName(@QueryParam("name") String name) {
+    public Response getUsersByName(String name) {
         List<User> users = userManager.getUsersByName(name);
         if (users == null) {
             return ResponseFactory.createOkResponse(null);
@@ -67,7 +68,8 @@ public class UserResource {
         return ResponseFactory.createOkResponse(users);
     }
 
-    @PUT
+    @POST
+    @Path("/me")
     public Response registerUser(@Context HttpServletRequest request, User user) {
         Long userIdFromToken = sessionManager.getUserIdFromRequest(request);
         if (userIdFromToken == null) {
@@ -76,24 +78,23 @@ public class UserResource {
         try {
             userManager.createUserIfNotExist(userIdFromToken, user.getName(), user.getEmail());
         } catch (Exception e) {
-            return ResponseFactory.createBadRequestResponse("Error while creating user.");
+            return ResponseFactory.createBadRequestResponse("Creating user error.", e.getMessage());
         }
         return ResponseFactory.createOkResponse(userManager.getUser(userIdFromToken));
     }
 
-    @POST
+    @PUT
+    @Path("/me")
     public Response updateUser(@Context HttpServletRequest request, User user) {
         Long userIdFromToken = sessionManager.getUserIdFromRequest(request);
-        if (userIdFromToken != user.getId()) {
-            return ResponseFactory.createForbiddenResponse("You are not allowed to modify another user.");
-        }
         if ("".equals(user.getName())) {
-            return ResponseFactory.createBadRequestResponse("User name cannot be empty.");
+            return ResponseFactory.createForbiddenResponse("User name cannot be empty.");
         }
         try {
+            user.setId(userIdFromToken);
             user = userManager.updateUser(user);
         } catch (Exception e) {
-            return ResponseFactory.createBadRequestResponse(e.getMessage());
+            return ResponseFactory.createBadRequestResponse("Creating user error.", e.getMessage());
         }
         return ResponseFactory.createOkResponse(user);
     }

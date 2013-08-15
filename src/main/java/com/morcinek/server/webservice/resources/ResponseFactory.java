@@ -33,7 +33,7 @@ public class ResponseFactory {
     }
 
     public static Response createForbiddenResponse(String message) {
-        return Response.status(Response.Status.FORBIDDEN).entity(new WebserviceError(message)).build();
+        return Response.status(Response.Status.FORBIDDEN).entity(new WebserviceError("Validation Error", message)).build();
     }
 
     public static Response createUnauthorizedResponse(String title, String message) {

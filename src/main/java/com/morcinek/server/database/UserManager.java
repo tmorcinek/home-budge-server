@@ -100,8 +100,10 @@ public class UserManager {
         }
         entityManager.merge(oldUser);
         tx.commit();
+        entityManager.refresh(oldUser);
         entityManager.detach(oldUser);
         oldUser.setAccounts(null);
+
         return oldUser;
     }
 }

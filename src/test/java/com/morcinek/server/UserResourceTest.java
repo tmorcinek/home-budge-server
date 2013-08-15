@@ -66,31 +66,21 @@ public class UserResourceTest {
                 expect().
                 statusCode(Response.Status.BAD_REQUEST.getStatusCode()).
                 when().
-                get("/user/0");
-    }
-
-
-    @Test
-    public void userNotFoundTest() {
-        given().
-                param("userId", 0).
-                expect().
-                statusCode(Response.Status.BAD_REQUEST.getStatusCode()).
-                when().
-                get("/user");
+                get("/users/0");
     }
 
     @Test
     public void userFoundPath() {
+        sessionManager.validateToken("301");
+
         given().
-                param("userId", 301).
                 expect().
                 statusCode(200).
                 body("id", Matchers.is(301)).
                 body("name", Matchers.is("Tomek")).
                 body("email", Matchers.is("tomasz.morcinek@pl")).
                 when().
-                get("/user");
+                get("/users/301");
     }
 
     @Test
@@ -102,7 +92,7 @@ public class UserResourceTest {
                 body("name", Matchers.is("Tomek")).
                 body("email", Matchers.is("tomasz.morcinek@pl")).
                 when().
-                get("/user/301");
+                get("/users/301");
     }
 
     @Test
@@ -119,7 +109,7 @@ public class UserResourceTest {
                 expect().
                 statusCode(200).
                 when().
-                put("/user");
+                post("/users/me");
 
         // then
         User user1 = ModelFactory.getObject(entityManager, User.class, 9207059L);
@@ -147,7 +137,7 @@ public class UserResourceTest {
         expect().
                 statusCode(200).
         when().
-                post("/user");
+                put("/users/me");
 
         // then
         User user1 = ModelFactory.getObject(entityManager, User.class, 1207059L);
@@ -157,9 +147,6 @@ public class UserResourceTest {
 
     @Test
     public void getUserByEmailTest() throws Exception {
-        // given
-        // when
-        // then
         given().
                 param("email","mala@karolina.pl").
         expect().
@@ -168,21 +155,18 @@ public class UserResourceTest {
                 body("id",Matchers.is(304)).
                 statusCode(200).
         when().
-                get("/user/email");
+                get("/users/search");
 
     }
 
     @Test
     public void getUserByName() throws Exception {
-        // given
-        // when
-        // then
         String jsonString = given().
                 param("name", "loool").
                 expect().
                 statusCode(200).
                 when().
-                get("/user/name").asString();
+                get("/users/search").asString();
 
         List<User> users = genericParser.parseList(jsonString, User.class);
         Assertions.assertThat(users).hasSize(4);
