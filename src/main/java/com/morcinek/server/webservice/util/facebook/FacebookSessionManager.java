@@ -2,6 +2,8 @@ package com.morcinek.server.webservice.util.facebook;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.morcinek.server.database.UserManager;
+import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.util.SessionManager;
 import com.morcinek.server.webservice.util.facebook.model.Data;
 import com.morcinek.server.webservice.util.facebook.model.ResponseData;
@@ -11,14 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created with IntelliJ IDEA.
  * User: Tomasz Morcinek
  * Date: 6/1/13
  * Time: 2:45 PM
- * To change this template use File | Settings | File Templates.
  */
 @Singleton
 public class FacebookSessionManager implements SessionManager {
@@ -31,13 +31,16 @@ public class FacebookSessionManager implements SessionManager {
 
     private final WebGatewayInterface webGateway;
 
+    private final UserManager userManager;
+
     private final String appToken;
 
     private final Map<String, Long> tokensMap;
 
     @Inject
-    public FacebookSessionManager(WebGatewayInterface webGateway) throws IOException {
+    public FacebookSessionManager(WebGatewayInterface webGateway, UserManager userManager) throws IOException {
         this.webGateway = webGateway;
+        this.userManager = userManager;
         tokensMap = createTokensMap();
         appToken = getAccessToken();
     }
@@ -64,13 +67,14 @@ public class FacebookSessionManager implements SessionManager {
             return false;
         }
 
-        if (tokensMap.containsKey(accessToken.hashCode())) {
+        if (tokensMap.containsKey(accessToken)) {
             return true;
         }
 
         Data data = getDataFromToken(accessToken);
+        User user = userManager.createUserIfNotExistFromFacebookId(data.getUser_id());
         if (data.isIs_valid()) {
-            tokensMap.put(accessToken, data.getUser_id());
+            tokensMap.put(accessToken, user.getId());
             return true;
         }
 
@@ -101,7 +105,7 @@ public class FacebookSessionManager implements SessionManager {
         return null;
     }
 
-//    // TODO needs to finish this function to get either error or properties from stream.
+    //    // TODO needs to finish this function to get either error or properties from stream.
 //    private void extendTokenLife(String accessToken){
 //        HashMap<String, String> params = new HashMap<String, String>();
 //        params.put("grant_type", "fb_exchange_token");

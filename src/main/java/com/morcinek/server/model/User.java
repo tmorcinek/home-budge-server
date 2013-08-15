@@ -9,25 +9,33 @@ import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
- * User: tomek
+ * User: Tomasz Morcinek
  * Date: 2/10/13
  * Time: 9:56 PM
- * To change this template use File | Settings | File Templates.
  */
 @Entity
 @XmlRootElement
 public class User {
 
     @Id
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     private String email;
 
     private String name;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(unique = true)
+    private Long facebookId;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
     private List<Account> accounts;
+
+    @JsonIgnore
+    @ManyToOne(optional = true, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private User creator;
 
     public User() {
     }
@@ -42,11 +50,11 @@ public class User {
         this.name = name;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -66,9 +74,17 @@ public class User {
         this.email = email;
     }
 
+    public Long getFacebookId() {
+        return facebookId;
+    }
+
+    public void setFacebookId(Long facebookId) {
+        this.facebookId = facebookId;
+    }
+
     public List<Account> getAccounts() {
         if (accounts == null) {
-            accounts = new ArrayList<Account>();
+            accounts = new ArrayList<>();
         }
         return accounts;
     }
@@ -92,6 +108,10 @@ public class User {
 
     @Override
     public int hashCode() {
-        return (int) id;
+        if (id == null) {
+            return 0;
+        }
+        return id.hashCode();
     }
+
 }

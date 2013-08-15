@@ -7,6 +7,7 @@ import com.morcinek.server.model.TestUser;
 import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.util.GenericParser;
 import com.morcinek.server.webservice.util.SessionManager;
+import com.morcinek.server.webservice.util.facebook.FakeFacebookSessionManager;
 import com.morcinek.server.webservice.util.network.FakeWebGateway;
 import org.fest.assertions.Assertions;
 import org.hamcrest.Matchers;
@@ -29,7 +30,7 @@ public class UserResourceTest {
     @ClassRule
     public static ServerRule serverRule = new ServerRule(8080, "/test/api");
     private static User tomek;
-    private static SessionManager sessionManager;
+    private static FakeFacebookSessionManager sessionManager;
 
     private static EntityManager entityManager;
     private static GenericParser genericParser;
@@ -56,7 +57,7 @@ public class UserResourceTest {
 
     private static void injectFields() {
         entityManager = serverRule.getInjector().getInstance(EntityManager.class);
-        sessionManager = serverRule.getInjector().getInstance(SessionManager.class);
+        sessionManager = (FakeFacebookSessionManager) serverRule.getInjector().getInstance(SessionManager.class);
         genericParser = serverRule.getInjector().getInstance(GenericParser.class);
     }
 
@@ -96,14 +97,13 @@ public class UserResourceTest {
     }
 
     @Test
-    public void registerUser() {
+    public void registerUserTest() {
         // given (Authentication)
         sessionManager.validateToken("9207059");
 
         // when (registration of new user)
         TestUser user = new TestUser(9207059L, "gienek.loska@gmail.com", "Eugeniusz");
         given().
-                header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
                 contentType(ContentType.JSON).
                 body(user).
                 expect().
@@ -119,19 +119,13 @@ public class UserResourceTest {
     }
 
     @Test
-    public void updateUser() {
+    public void updateUserTest() {
         // Authentication
-        sessionManager.validateToken("1207059");
-        // registration of new user
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        ModelFactory.createUser(entityManager, 1207059L, "tomasz.morcinek@gmail.com", "Tomasz Morcinek");
-        transaction.commit();
+        sessionManager.validateToken("12070592");
 
         // when (updating user)
-        TestUser user = new TestUser(1207059L, "karamba@pl.com", "modifiedUser");
+        TestUser user = new TestUser(12070592L, "karamba@pl.com", "modifiedUser");
         given().
-                header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK).
                 contentType(ContentType.JSON).
                 body(user).
         expect().
@@ -140,7 +134,7 @@ public class UserResourceTest {
                 put("/users/me");
 
         // then
-        User user1 = ModelFactory.getObject(entityManager, User.class, 1207059L);
+        User user1 = ModelFactory.getObject(entityManager, User.class, 12070592L);
         Assert.assertEquals("karamba@pl.com", user1.getEmail());
         Assert.assertEquals("modifiedUser", user1.getName());
     }

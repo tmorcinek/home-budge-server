@@ -14,10 +14,15 @@ import java.util.Arrays;
 public class ModelFactory {
 
     public static User createUser(EntityManager entityManager, long id, String name, String email) {
+        return createUser(entityManager, id, name, email, null);
+    }
+
+    public static User createUser(EntityManager entityManager, Long id, String name, String email, Long facebookId) {
         User user = new User();
         user.setId(id);
         user.setName(name);
         user.setEmail(email);
+        user.setFacebookId(facebookId);
         entityManager.persist(user);
         return user;
     }

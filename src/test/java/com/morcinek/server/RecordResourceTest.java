@@ -41,23 +41,23 @@ public class RecordResourceTest {
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
 
-        User user = ModelFactory.createUser(entityManager, 29, "tomek", "tomk1@morcinek.com");
-        ModelFactory.createUser(entityManager, 30, "marek", "marek@major.com").getId();
+        User user = ModelFactory.createUser(entityManager, 129, "tomek", "tomk1@morcinek.com");
+        ModelFactory.createUser(entityManager, 130, "marek", "marek@major.com").getId();
         Account account = ModelFactory.createAccount(entityManager, "Limanowskiego211", user);
         accountId = account.getId();
         recordId = ModelFactory.createRecord(entityManager, account, 213.22, "zakupy", user, user, user).getId();
-        recordId2 = ModelFactory.createRecord(entityManager, account, 490.12, "przekupy", "short description",user, user, user).getId();
+        recordId2 = ModelFactory.createRecord(entityManager, account, 490.12, "przekupy", "short description", user, user, user).getId();
 
         tx.commit();
     }
 
     @AfterClass
-    public static void  tearDown() throws Exception {
+    public static void tearDown() throws Exception {
         // assert not changed fields
-        User user = entityManager.find(User.class, 29L);
+        User user = entityManager.find(User.class, 129L);
         Assertions.assertThat(user.getEmail()).isEqualTo("tomk1@morcinek.com");
         Assertions.assertThat(user.getName()).isEqualTo("tomek");
-        User user2 = entityManager.find(User.class, 30L);
+        User user2 = entityManager.find(User.class, 130L);
         Assertions.assertThat(user2.getEmail()).isEqualTo("marek@major.com");
         Assertions.assertThat(user2.getName()).isEqualTo("marek");
 
@@ -83,8 +83,8 @@ public class RecordResourceTest {
     @Test
     public void createRecordTest() {
         User e = new User();
-        sessionManager.validateToken("29");
-        e.setId(29);
+        sessionManager.validateToken("129");
+        e.setId(129L);
         Record record = ModelFactory.createRecord(null, null, 513.78, "pierdoly do domu", e, e, e);
         given().
                 header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
@@ -92,9 +92,9 @@ public class RecordResourceTest {
                 body(record).
                 expect().
                 statusCode(201).
-                body("payer.id", Matchers.equalTo(29)).
-                body("creator.id", Matchers.equalTo(29)).
-                body("users[0].id", Matchers.equalTo(29)).
+                body("payer.id", Matchers.equalTo(129)).
+                body("creator.id", Matchers.equalTo(129)).
+                body("users[0].id", Matchers.equalTo(129)).
                 body("title", Matchers.equalTo("pierdoly do domu")).
                 body("amount", Matchers.equalTo(513.78f)).
                 when().
@@ -105,7 +105,7 @@ public class RecordResourceTest {
     public void createRecordTestAuthorizationError() {
         User e = new User();
         sessionManager.validateToken("80001");
-        e.setId(29);
+        e.setId(129L);
         Record record = ModelFactory.createRecord(null, null, 213.22, "zakupy", e, e, e);
         given().
                 header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
@@ -161,7 +161,7 @@ public class RecordResourceTest {
 
     @Test
     public void updateRecordTestErrorWrongAccount() {
-        sessionManager.validateToken("29");
+        sessionManager.validateToken("129");
 
         TestRecord record = new TestRecord();
         record.setTitle("new title");
@@ -181,7 +181,7 @@ public class RecordResourceTest {
 
     @Test
     public void updateRecordTest() {
-        sessionManager.validateToken("29");
+        sessionManager.validateToken("129");
 
         TestRecord record = new TestRecord();
         record.setTitle("new title");
@@ -203,13 +203,13 @@ public class RecordResourceTest {
 
     @Test
     public void updateRecordTestAmount() {
-        sessionManager.validateToken("29");
+        sessionManager.validateToken("129");
 
         TestRecord record = new TestRecord();
         record.setTitle("new title");
         record.setDescription("longer description");
         record.setAmount(1999.99);
-        record.getUsers().add(new TestUser(30L));
+        record.getUsers().add(new TestUser(130L));
         given().
                 header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
                 contentType(ContentType.JSON).
@@ -219,24 +219,24 @@ public class RecordResourceTest {
                 body("title", Matchers.equalTo("new title")).
                 body("description", Matchers.equalTo("longer description")).
                 body("amount", Matchers.equalTo(1999.99f)).
-                body("users[0].id", Matchers.equalTo(30)).
+                body("users[0].id", Matchers.equalTo(130)).
                 when().
                 put("records/accounts/" + accountId + "/records/" + recordId2);
     }
 
     @Test
     public void updateRecordTestPayer() {
-        sessionManager.validateToken("29");
+        sessionManager.validateToken("129");
 
         TestRecord record = new TestRecord();
-        record.setPayer(new TestUser(30L));
+        record.setPayer(new TestUser(130L));
         given().
                 header("accessToken", FakeWebGateway.ACCESS_TOKEN_OK_2).
                 contentType(ContentType.JSON).
                 body(record).
                 expect().
                 statusCode(200).
-                body("payer.id", Matchers.equalTo(30)).
+                body("payer.id", Matchers.equalTo(130)).
                 when().
                 put("records/accounts/" + accountId + "/records/" + recordId2);
     }

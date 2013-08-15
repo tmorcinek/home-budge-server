@@ -1,6 +1,5 @@
 package com.morcinek.server.webservice.util;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.morcinek.server.model.Account;
 import com.morcinek.server.model.User;
@@ -14,9 +13,6 @@ import com.morcinek.server.model.User;
 @Singleton
 public class PermissionManager {
 
-    @Inject
-    private SessionManager sessionManager;
-
     public boolean validatePermision(long userId, Account account) {
         for (User user : account.getUsers()) {
             if (user.getId() == userId) {
@@ -25,4 +21,5 @@ public class PermissionManager {
         }
         return false;
     }
+
 }

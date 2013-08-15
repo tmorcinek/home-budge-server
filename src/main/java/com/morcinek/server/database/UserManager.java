@@ -6,15 +6,16 @@ import com.morcinek.server.model.User;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created with IntelliJ IDEA.
  * User: Tomasz Morcinek
  * Date: 6/3/13
  * Time: 2:51 AM
- * To change this template use File | Settings | File Templates.
  */
 @Singleton
 public class UserManager {
@@ -55,38 +56,26 @@ public class UserManager {
         return resultList;
     }
 
-    public boolean createUserIfNotExist(long userId) throws Exception {
-        return createUserIfNotExist(userId, null, null);
-    }
-
-    public boolean createUserIfNotExist(long userId, String name, String email) throws Exception {
-        if (getUser(userId) != null) {
-            return false;
+    public User createUserIfNotExistFromFacebookId(long facebookId) {
+        Logger.getLogger("facebook").info("Facebook id: " + facebookId);
+        User user = getUserFromFacebookId(facebookId);
+        if (user == null) {
+            EntityTransaction transaction = entityManager.getTransaction();
+            transaction.begin();
+            user = new User();
+            user.setFacebookId(facebookId);
+            entityManager.persist(user);
+            Logger.getLogger("facebook").info("Facebook user: " + user);
+            transaction.commit();
         }
-        EntityTransaction tx = entityManager.getTransaction();
-        tx.begin();
-        entityManager.persist(new User(userId, email, name));
-        tx.commit();
-        return true;
+        entityManager.refresh(user);
+        return user;
     }
 
-    /**
-     * @param
-     * @return
-     * @throws Exception
-     * @see #updateUser(long, String, String)
-     */
     public User updateUser(User user) throws Exception {
         return updateUser(user.getId(), user.getEmail(), user.getName());
     }
 
-    /**
-     * @param userId
-     * @param email
-     * @param name   can be null but not empty string
-     * @return
-     * @throws Exception
-     */
     public User updateUser(long userId, String email, String name) throws Exception {
         User oldUser = getUser(userId);
         entityManager.refresh(oldUser);
@@ -105,5 +94,21 @@ public class UserManager {
         oldUser.setAccounts(null);
 
         return oldUser;
+    }
+
+    public User getUserFromFacebookId(long specialId) {
+        TypedQuery<User> namedQuery = entityManager.createQuery("select u from User u where u.facebookId = :specialId", User.class);
+        namedQuery.setParameter("specialId", specialId);
+        try {
+            return namedQuery.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public Long getUserIdFromFacebookId(long specialId) {
+        TypedQuery<Long> namedQuery = entityManager.createQuery("select u.id from User u where u.facebookId = :specialId", Long.class);
+        namedQuery.setParameter("specialId", specialId);
+        return namedQuery.getSingleResult();
     }
 }

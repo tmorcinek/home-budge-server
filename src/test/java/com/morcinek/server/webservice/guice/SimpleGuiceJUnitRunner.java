@@ -11,7 +11,6 @@ import org.junit.runners.model.InitializationError;
  * User: Tomasz Morcinek
  * Date: 2/27/13
  * Time: 11:54 PM
- * To change this template use File | Settings | File Templates.
  */
 public class SimpleGuiceJUnitRunner extends BlockJUnit4ClassRunner {
 

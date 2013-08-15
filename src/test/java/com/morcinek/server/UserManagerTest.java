@@ -62,12 +62,12 @@ public class UserManagerTest {
         // given
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
-        ModelFactory.createUser(entityManager, 201, null, null);
+        ModelFactory.createUser(entityManager, null, null, null, 3234324L);
         transaction.commit();
         int size = getUsersCount();
 
         // when
-        userManager.createUserIfNotExist(201);
+        userManager.createUserIfNotExistFromFacebookId(3234324L);
 
         // then
         int newSize = getUsersCount();
@@ -82,10 +82,9 @@ public class UserManagerTest {
     @Test
     public void createIfNotExistTestNotExist() throws Exception {
         // given when
-        userManager.createUserIfNotExist(202);
+        User user = userManager.createUserIfNotExistFromFacebookId(2020000L);
 
         // then
-        User user = userManager.getUser(202);
         Assertions.assertThat(user).isNotNull();
     }
 
@@ -93,20 +92,23 @@ public class UserManagerTest {
     @Test
     public void createUserWithDetailsTest() throws Exception {
         // given when
-        userManager.createUserIfNotExist(203, "Tomasz", "morcinek@pl");
-        userManager.createUserIfNotExist(204, "Tomasz", null);
-        userManager.createUserIfNotExist(205, null, "Morcinek@pl");
-        userManager.createUserIfNotExist(206, "", "Morcinek@pl");
+        User user1 = userManager.createUserIfNotExistFromFacebookId(2030000);
+        userManager.updateUser(user1.getId(), "morcinek@pl", "Tomasz");
+        User user2 = userManager.createUserIfNotExistFromFacebookId(2040000);
+        userManager.updateUser(user2.getId(), null, "Tomasz");
+        User user3 = userManager.createUserIfNotExistFromFacebookId(2050000);
+        userManager.updateUser(user3.getId(), "Morcinek@pl", null);
+        User user4 = userManager.createUserIfNotExistFromFacebookId(2060000);
+        userManager.updateUser(user4.getId(), "Morcinek@pl", "");
 
         // then
-        validateUser(203, "Tomasz", "morcinek@pl");
-        validateUser(204, "Tomasz", null);
-        validateUser(205, null, "Morcinek@pl");
-        validateUser(206, "", "Morcinek@pl");
-
+        validateUser(user1.getId(), "Tomasz", "morcinek@pl");
+        validateUser(user2.getId(), "Tomasz", null);
+        validateUser(user3.getId(), null, "Morcinek@pl");
+        validateUser(user4.getId(), "", "Morcinek@pl");
     }
 
-    private void validateUser(int userId, String name, String email) {
+    private void validateUser(long userId, String name, String email) {
         User user = userManager.getUser(userId);
         Assertions.assertThat(user).isNotNull();
         Assertions.assertThat(user.getName()).isEqualTo(name);
@@ -213,6 +215,25 @@ public class UserManagerTest {
         Assertions.assertThat(user.getEmail()).isEqualTo("twoja.stara@pl");
         Assertions.assertThat(user.getName()).isEqualTo("Krwawa ktos");
 
+    }
+
+    @Test
+    public void getUserIdFromSpecialIdTest() throws Exception {
+        EntityTransaction transaction = entityManager.getTransaction();
+        transaction.begin();
+        User user = ModelFactory.createUser(entityManager, null, "Chyba ty", "twoja.starapl", 12231L);
+        User user2 = ModelFactory.createUser(entityManager, null, "mmnems", "nowy emails", 32342L);
+        User user3 = ModelFactory.createUser(entityManager, null, "fajna bryka", "what is your name", 565777556L);
+        transaction.commit();
+        entityManager.refresh(user);
+
+        // then
+        Long userId = userManager.getUserIdFromFacebookId(12231);
+        Assertions.assertThat(userId).isNotNull().isEqualTo(user.getId());
+        Long userId2 = userManager.getUserIdFromFacebookId(32342L);
+        Assertions.assertThat(userId2).isNotNull().isEqualTo(user2.getId());
+        Long userId3 = userManager.getUserIdFromFacebookId(565777556L);
+        Assertions.assertThat(userId3).isNotNull().isEqualTo(user3.getId());
     }
 
 

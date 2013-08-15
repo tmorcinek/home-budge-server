@@ -17,7 +17,6 @@ import java.util.List;
  * User: Tomasz Morcinek
  * Date: 2/10/13
  * Time: 9:56 PM
- * To change this template use File | Settings | File Templates.
  */
 @Path("/users")
 @Produces({MediaType.APPLICATION_JSON})
@@ -76,7 +75,7 @@ public class UserResource {
             return ResponseFactory.createForbiddenResponse("You are not allowed to register another user.");
         }
         try {
-            userManager.createUserIfNotExist(userIdFromToken, user.getName(), user.getEmail());
+            userManager.updateUser(userIdFromToken, user.getEmail(), user.getName());
         } catch (Exception e) {
             return ResponseFactory.createBadRequestResponse("Creating user error.", e.getMessage());
         }

@@ -3,8 +3,11 @@ package com.morcinek.server.webservice.util.facebook;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.morcinek.server.database.UserManager;
+import com.morcinek.server.model.User;
 import com.morcinek.server.webservice.util.SessionManager;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -17,12 +20,19 @@ import javax.servlet.http.HttpServletRequest;
 @Singleton
 public class FakeFacebookSessionManager implements SessionManager {
 
+    @Inject
+    private EntityManager entityManager;
+
     private long userId;
 
     @Override
     public boolean validateToken(String accessToken) {
         try {
             userId = Long.parseLong(accessToken);
+            EntityTransaction transaction = entityManager.getTransaction();
+            transaction.begin();
+            entityManager.persist(new User(userId));
+            transaction.commit();
         } catch (NumberFormatException e) {
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,4 +49,5 @@ public class FakeFacebookSessionManager implements SessionManager {
     public Long getUserIdFromRequest(HttpServletRequest request) {
         return userId;
     }
+
 }

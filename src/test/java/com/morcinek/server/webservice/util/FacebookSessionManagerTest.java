@@ -2,10 +2,8 @@ package com.morcinek.server.webservice.util;
 
 import com.google.inject.Inject;
 import com.morcinek.server.webservice.guice.SimpleGuiceJUnitRunner;
-import com.morcinek.server.webservice.util.facebook.FacebookSessionManager;
 import com.morcinek.server.webservice.util.network.FakeWebGateway;
 import org.fest.assertions.Assertions;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,7 +12,6 @@ import org.junit.runner.RunWith;
  * User: Tomasz Morcinek
  * Date: 6/1/13
  * Time: 2:52 PM
- * To change this template use File | Settings | File Templates.
  */
 @RunWith(SimpleGuiceJUnitRunner.class)
 public class FacebookSessionManagerTest {
